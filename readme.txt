@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.5.0
+Stable tag: 0.5.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,11 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.5.1 =
+* fix(thread): 관리자 답변 박스(`.inquiry-msg-admin`) 배경이 deep navy `#1c1e54` fill 이라 사이트 라이트 톤과 너무 대비되어 어둡게 보이던 문제 해결. 본문 배경을 ultra-light lavender `#f6f5ff`, 헤더 띠를 한 톤 진한 `#eceafd`, 보더를 `--inq-primary-subdued` (`#b9b9f9`) 로 변경. 좌측에 4px indigo accent bar(`::before`) 를 추가해 admin reply 정체성은 indigo 시그니처로 유지. 본문 텍스트는 `--inq-ink` (`#0d253d`) deep navy 그대로 두어 가독성 향상.
+* role pill `inquiry-msg-role-admin`: 어디서나 동일한 filled indigo 톤으로 단순화 (이전에는 admin bubble 안에서 lighter indigo soft 로 전환했으나 light bg 에서는 구분이 약해 원래 톤 유지).
+* admin reply 내부 링크: indigo deep (`#4434d4`) + 1px underline 으로 light bg 에서도 명확히 보이도록.
 
 = 0.5.0 =
 * DESIGN.md(Stripe 디자인 시스템) 적용 — 플러그인 전 화면(목록 / 단일 / 글쓰기 / 수정 / 비밀번호 / 답변 스레드) UI 를 indigo CTA + deep navy ink + Inter 300 + pill 버튼 + hairline 카드 톤으로 재구성.

@@ -872,8 +872,10 @@ body.single-inquiry .post-title-wrapper {
    답변 스레드(메시지 버블)
    - 컨테이너: canvas-soft + hairline + rounded-lg (DESIGN.md `card-feature-light`)
    - 일반 메시지: white card + hairline
-   - 관리자 메시지: brand-dark-900 fill + on-primary text
-     (DESIGN.md `card-pricing-featured` — 차별화된 featured tier 톤)
+   - 관리자 메시지: ultra-light lavender(`#f6f5ff`) + 좌측 4px indigo accent bar
+     (v0.5.0 의 deep navy fill 이 사이트 전체 톤과 너무 대비된다는 피드백 반영.
+      DESIGN.md 의 indigo 시그니처는 accent bar + role pill 로 살리고
+      배경은 lavender 미스트로 라이트하게.)
    ------------------------------------------------------------------------- */
 .inquiry-thread {
 	margin: var(--inq-gap-xxl) 0;
@@ -933,12 +935,25 @@ body.single-inquiry .post-title-wrapper {
 	overflow: hidden;
 	box-shadow: var(--inq-shadow-1);
 }
-/* 관리자 답변 — featured-tier 톤(brand-dark-900 fill + 흰 텍스트). */
+/* 관리자 답변 — light lavender + 좌측 indigo accent bar.
+   배경/보더는 indigo 가 살짝 섞인 ultra-light tint 라 사이트 라이트 톤과 자연스럽게
+   어울리고, 좌측 4px indigo bar 와 role pill 로 admin 정체성을 명확히 표시한다. */
 .inquiry-msg-admin {
-	background: var(--inq-brand-dark);
-	border-color: var(--inq-brand-dark);
-	color: var(--inq-on-primary);
-	box-shadow: var(--inq-shadow-2);
+	position: relative;
+	background: #f6f5ff;
+	border-color: var(--inq-primary-subdued);
+	color: var(--inq-ink);
+	box-shadow: var(--inq-shadow-1);
+}
+.inquiry-msg-admin::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 4px;
+	background: var(--inq-primary);
+	pointer-events: none;
 }
 .inquiry-msg-head {
 	display: flex;
@@ -954,10 +969,11 @@ body.single-inquiry .post-title-wrapper {
 	color: var(--inq-ink-mute);
 	letter-spacing: -0.39px;
 }
+/* admin 헤더 띠는 본문(`#f6f5ff`) 보다 한 톤 진한 lavender 로 구분. */
 .inquiry-msg-admin .inquiry-msg-head {
-	background: rgba(255, 255, 255, .06);
-	border-bottom-color: rgba(255, 255, 255, .12);
-	color: rgba(255, 255, 255, .72);
+	background: #eceafd;
+	border-bottom-color: var(--inq-primary-subdued);
+	color: var(--inq-ink-secondary);
 }
 .inquiry-msg-head strong {
 	color: var(--inq-ink);
@@ -965,7 +981,7 @@ body.single-inquiry .post-title-wrapper {
 	font-weight: 400;
 }
 .inquiry-msg-admin .inquiry-msg-head strong {
-	color: var(--inq-on-primary);
+	color: var(--inq-primary-deep);
 }
 .inquiry-msg-head time {
 	color: var(--inq-ink-mute);
@@ -973,7 +989,7 @@ body.single-inquiry .post-title-wrapper {
 	letter-spacing: -0.42px;
 }
 .inquiry-msg-admin .inquiry-msg-head time {
-	color: rgba(255, 255, 255, .6);
+	color: var(--inq-ink-secondary);
 }
 /* role 배지 — pill. admin=filled indigo, owner=subdued indigo. */
 .inquiry-msg-role {
@@ -990,10 +1006,6 @@ body.single-inquiry .post-title-wrapper {
 	background: var(--inq-primary);
 	color: var(--inq-on-primary);
 }
-.inquiry-msg-admin .inquiry-msg-role-admin {
-	background: var(--inq-primary-soft);
-	color: var(--inq-on-primary);
-}
 .inquiry-msg-role-owner {
 	background: var(--inq-primary-subdued);
 	color: var(--inq-primary-deep);
@@ -1007,11 +1019,11 @@ body.single-inquiry .post-title-wrapper {
 	line-height: 1.6;
 	word-break: break-word;
 }
-.inquiry-msg-admin .inquiry-msg-body {
-	color: var(--inq-on-primary);
-}
 .inquiry-msg-admin .inquiry-msg-body a {
-	color: var(--inq-primary-soft);
+	color: var(--inq-primary-deep);
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 2px;
 }
 .inquiry-msg-body p {
 	margin: 0 0 0.6em;
