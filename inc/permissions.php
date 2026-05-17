@@ -92,5 +92,8 @@ function inquiry_board_password_form( string $output, $post = null ) {
 	}
 	$inquiry_post_id = (int) $post_obj->ID;
 	include $template;
-	return (string) ob_get_clean();
+	$html = (string) ob_get_clean();
+	// `the_content` 필터 체인의 wpautop 가 폼 안의 줄바꿈을 <br /> · <p> 로 변형해
+	// 마크업이 깨지므로 newline·CR 을 모두 제거한다.
+	return str_replace( [ "\r\n", "\n", "\r" ], '', $html );
 }
