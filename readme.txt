@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.4.7
+Stable tag: 0.4.8
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,10 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.4.8 =
+* single: 본문·댓글 안의 plain URL 을 자동으로 `<a>` 태그로 감싸도록 `make_clickable` 적용. inquiry 본문은 `the_content` 필터 priority 15 에 보장 필터(`inquiry_board_ensure_clickable`)를 추가해 다른 플러그인이 코어의 make_clickable(priority 9) 을 제거해 둔 환경에서도 동작. 댓글은 `wpautop( make_clickable( wp_kses_post(...) ) )` 순서로 처리 — 줄바꿈이 살아있는 단계에서 URL 인식이 더 정확.
+* style: 「답글 등록」 버튼(`.inquiry-reply-submit`) 을 「← 목록으로」 링크(`.inquiry-back-link`) 와 동일한 박스 톤·크기로 통일 (padding `8px 14px`, font-size `13px`, `inline-flex`, `border-radius 10px`, hover `#eff6ff` / `#98bce8`).
 
 = 0.4.7 =
 * style: inquiry 단일 페이지 상단 타이틀(`body.single-inquiry .post-title-wrapper`) 도 본문 래퍼(`.inquiry-single-wrap`) 와 동일하게 75% 폭(모바일 100%) 으로 정렬. 상단부터 본문까지 일관된 컨테이너 폭 유지.

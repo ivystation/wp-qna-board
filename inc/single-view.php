@@ -48,6 +48,21 @@ function inquiry_board_filter_author_meta( $value, $field, $user_id ) {
 	return $meta !== '' ? $meta : $value;
 }
 
+/**
+ * inquiry 본문 안의 plain URL 을 자동으로 <a> 태그로 감싼다.
+ * WP 코어가 `the_content` priority 9 에서 make_clickable 을 등록하지만,
+ * 다른 플러그인이 제거해 둔 케이스에 대비한 보장 필터. (이미 a 태그로 감싼
+ * URL 은 make_clickable 이 무시하므로 idempotent.)
+ */
+add_filter( 'the_content', 'inquiry_board_ensure_clickable', 15 );
+
+function inquiry_board_ensure_clickable( string $content ): string {
+	if ( is_admin() || ! is_singular( 'inquiry' ) || ! in_the_loop() || ! is_main_query() ) {
+		return $content;
+	}
+	return make_clickable( $content );
+}
+
 add_filter( 'the_content', 'inquiry_board_decorate_content', 20 );
 
 function inquiry_board_decorate_content( string $content ): string {
@@ -230,7 +245,8 @@ function inquiry_board_render_comment_thread( int $post_id, bool $is_owner ): st
 						<div class="inquiry-msg-body">
 							<?php
 							// 3rd party `the_content` 훅 Fatal 회피 위해 wpautop(wp_kses_post()) 사용.
-							echo wpautop( wp_kses_post( (string) $c->comment_content ) );
+							// make_clickable 은 \n 이 살아있는 wpautop 이전 단계에서 적용 → URL 인식이 더 정확.
+							echo wpautop( make_clickable( wp_kses_post( (string) $c->comment_content ) ) );
 							?>
 						</div>
 					</article>

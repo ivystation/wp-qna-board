@@ -256,27 +256,34 @@ body.single-inquiry .post-title-wrapper {
 	}
 }
 
-/* "목록으로" 링크 */
+/* "목록으로" 링크 & "답글 등록" 버튼 — 동일 박스 톤으로 통일. */
 .inquiry-back-to-list {
 	margin: 0 0 18px;
 }
-.inquiry-back-link {
+.inquiry-back-link,
+.inquiry-reply-submit {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
 	padding: 8px 14px;
 	background: #ffffff;
+	color: #0f172a;
 	border: 1px solid #e2e8f0;
 	border-radius: 10px;
-	color: #0f172a;
 	font-size: 13px;
 	font-weight: 600;
 	line-height: 1.4;
 	text-decoration: none;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	text-transform: none;
 	transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 .inquiry-back-link:hover,
-.inquiry-back-link:focus {
+.inquiry-back-link:focus,
+.inquiry-reply-submit:hover,
+.inquiry-reply-submit:focus {
 	background: #eff6ff;
 	border-color: #98bce8;
 	color: #0f172a;
@@ -429,29 +436,10 @@ body.single-inquiry .post-title-wrapper {
 	box-sizing: border-box;
 	background: #fff;
 }
-/* 답변 등록 버튼 — 테마와 독립적으로 댓글 박스(.inquiry-msg) 와 동일한 톤. */
+/* 답글 등록 버튼은 .inquiry-back-link 와 동일 박스 톤(위 통합 규칙).
+   textarea 와의 간격만 별도 적용. */
 .inquiry-reply-submit {
-	display: inline-block;
 	margin-top: 10px;
-	padding: 14px 16px;
-	background: #ffffff;
-	color: #0f172a;
-	border: 1px solid #e2e8f0;
-	border-radius: 10px;
-	font-weight: 600;
-	font-size: 14px;
-	line-height: 1.4;
-	cursor: pointer;
-	appearance: none;
-	-webkit-appearance: none;
-	text-transform: none;
-	transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-.inquiry-reply-submit:hover,
-.inquiry-reply-submit:focus {
-	background: #eff6ff;
-	border-color: #98bce8;
-	color: #0f172a;
 }
 
 @media (max-width: 640px) {
