@@ -426,17 +426,17 @@ function inquiry_board_settings_render_migration_kboard(): void {
 	global $wpdb;
 	$mig = wp_parse_args( get_option( 'inquiry_board_migration', [] ), inquiry_board_migration_defaults() );
 
-	// 사이트에 KBoard 테이블이 있는지 감지.
+	// KBoard 의 게시판 목록 테이블은 실제로 `{prefix}kboard_board_setting` 이다.
 	$has_kboard = (bool) $wpdb->get_var( $wpdb->prepare(
 		'SHOW TABLES LIKE %s',
-		$wpdb->prefix . 'kboard_board'
+		$wpdb->prefix . 'kboard_board_setting'
 	) );
 
 	$boards = [];
 	if ( $has_kboard ) {
-		$rows = $wpdb->get_results( "SELECT uid, name FROM {$wpdb->prefix}kboard_board ORDER BY uid ASC", ARRAY_A );
+		$rows = $wpdb->get_results( "SELECT uid, board_name FROM {$wpdb->prefix}kboard_board_setting ORDER BY uid ASC", ARRAY_A );
 		foreach ( (array) $rows as $r ) {
-			$boards[ (int) $r['uid'] ] = (string) $r['name'];
+			$boards[ (int) $r['uid'] ] = (string) $r['board_name'];
 		}
 	}
 	?>
@@ -452,7 +452,7 @@ function inquiry_board_settings_render_migration_kboard(): void {
 				echo esc_html( sprintf(
 					/* translators: %s: table name */
 					__( '현재 사이트에서 KBoard 테이블(%s)을 찾지 못했습니다. KBoard 플러그인이 설치된 동일 DB 에서만 실행됩니다.', 'wp-qna-board' ),
-					$wpdb->prefix . 'kboard_board'
+					$wpdb->prefix . 'kboard_board_setting'
 				) );
 				?>
 			</p>
@@ -476,7 +476,7 @@ function inquiry_board_settings_render_migration_kboard(): void {
 						</select>
 					<?php else : ?>
 						<input type="number" min="0" id="ibm_board" name="inquiry_board_migration[kboard_board_id]" value="<?php echo esc_attr( (string) $mig['kboard_board_id'] ); ?>">
-						<p class="description"><?php esc_html_e( 'KBoard 게시판 uid (wp_kboard_board.uid) 를 입력하세요.', 'wp-qna-board' ); ?></p>
+						<p class="description"><?php esc_html_e( 'KBoard 게시판 uid (wp_kboard_board_setting.uid) 를 입력하세요.', 'wp-qna-board' ); ?></p>
 					<?php endif; ?>
 				</td>
 			</tr>

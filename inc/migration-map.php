@@ -32,6 +32,8 @@ function inquiry_board_category_rules(): array {
 		'학부'         => 'university',
 		'석사'         => 'university',
 		'박사'         => 'university',
+		'정규유학'     => 'university',
+		'정규'         => 'university',
 		'university'   => 'university',
 		// 조기유학
 		'조기유학'     => 'early-study',

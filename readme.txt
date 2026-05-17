@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.4.1
+Stable tag: 0.4.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,14 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.4.2 =
+* migration: KBoard 실제 스키마(`{prefix}kboard_board_setting`, `kboard_board_content`, `kboard_comments`, `kboard_board_attached`)에 맞춰 감지·CLI 매핑을 전면 보정. v0.4.1 까지는 존재하지 않는 `kboard_board` 테이블을 가정해 마이그레이션 화면 감지가 실패하고 CLI 실행 시 댓글 SQL 에러가 발생했음.
+* migration: 글 일자(`date`/`update`), 비밀(`secret='true'`), 공지(`notice='true'`), 상태(`status='trash'` 제외), 작성자(`member_uid`/`member_display`) 매핑 정상화.
+* migration: 첨부는 `{prefix}kboard_board_attached` 테이블에서 글(`content_uid`) 단위 JOIN 으로 처리하도록 분리. 댓글은 `content_uid` JOIN 으로 게시판 필터링하며 작성자명은 `user_display` 사용.
+* migration: KBoard char(14) `'YYYYMMDDHHMMSS'` ↔ MySQL datetime 변환 유틸 추가. `--since` 옵션이 KST 기준으로 정상 동작.
+* migration: 댓글 idempotent 처리(legacy uid 중복 INSERT 방지). 첨부도 글 메타에 누적 병합되도록 변경.
+* migration-map: `정규유학`/`정규` 카테고리 → `university` 매핑 추가.
 
 = 0.4.1 =
 * updater: "업데이트 캐시 강제 갱신" 버튼이 wp_update_plugins() 를 즉시 호출하도록 보강. 캐시 비움 직후 한 사이클 동안 빈 상태가 유지되는 문제 해결.
