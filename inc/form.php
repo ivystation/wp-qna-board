@@ -12,19 +12,70 @@ const INQUIRY_BOARD_NONCE_FIELD  = 'inquiry_board_nonce';
 
 add_shortcode( 'inquiry_form', 'inquiry_board_shortcode_form' );
 
+/**
+ * [inquiry_form] 숏코드.
+ *
+ * 기본은 게시글 목록 + "글쓰기" 버튼을 표시하고, 글쓰기 버튼을 누르면
+ * 같은 페이지에 ?ipv=write 파라미터가 붙어 작성 폼이 나타난다.
+ *
+ * 지원 속성:
+ *  - posts_per_page  목록 페이지당 노출 글 수 (기본 20)
+ *  - view            'auto' | 'list' | 'write' (기본 auto: URL 파라미터로 결정)
+ *  - show_write_button  목록 화면 상단에 글쓰기 버튼 노출 여부 (기본 '1')
+ *  - category        특정 카테고리 슬러그로 한정 (기본 빈 값 = 전체)
+ *  - title           작성 폼 헤더용 텍스트 (기본 '문의하기')
+ *  - redirect        작성 후 redirect URL (기존 호환)
+ */
 function inquiry_board_shortcode_form( $atts = [] ): string {
 	$atts = shortcode_atts( [
-		'redirect' => '',
-		'title'    => __( '문의하기', 'wp-qna-board' ),
+		'redirect'          => '',
+		'title'             => __( '문의하기', 'wp-qna-board' ),
+		'posts_per_page'    => 20,
+		'view'              => 'auto',
+		'show_write_button' => '1',
+		'category'          => '',
 	], $atts, 'inquiry_form' );
 
+	$atts['posts_per_page']    = max( 1, (int) $atts['posts_per_page'] );
+	$atts['show_write_button'] = ! in_array( strtolower( (string) $atts['show_write_button'] ), [ '0', 'false', 'no', '' ], true );
+
+	$view = strtolower( (string) $atts['view'] );
+	if ( $view === 'auto' || ! in_array( $view, [ 'list', 'write' ], true ) ) {
+		$view = ( isset( $_GET['ipv'] ) && $_GET['ipv'] === 'write' ) ? 'write' : 'list';
+	}
+
 	ob_start();
-	$template = locate_template( [ 'inquiry-form.php' ] );
-	if ( ! $template ) {
-		$template = INQUIRY_BOARD_TEMPLATES . 'inquiry-form.php';
+	if ( $view === 'write' ) {
+		$template = locate_template( [ 'inquiry-form.php' ] );
+		if ( ! $template ) {
+			$template = INQUIRY_BOARD_TEMPLATES . 'inquiry-form.php';
+		}
+	} else {
+		$template = locate_template( [ 'inquiry-list.php' ] );
+		if ( ! $template ) {
+			$template = INQUIRY_BOARD_TEMPLATES . 'inquiry-list.php';
+		}
 	}
 	include $template;
 	return (string) ob_get_clean();
+}
+
+/**
+ * 쇼트코드가 박힌 현재 페이지의 베이스 URL.
+ * paged/ipv 같은 보조 쿼리는 제거한다. page 단일 URL 기준.
+ */
+function inquiry_board_current_page_url(): string {
+	$pid = get_queried_object_id();
+	if ( $pid ) {
+		$url = get_permalink( $pid );
+		if ( $url ) {
+			return $url;
+		}
+	}
+	// fallback: 현재 요청 URL 에서 쿼리스트링만 정리.
+	$req = isset( $_SERVER['REQUEST_URI'] ) ? (string) $_SERVER['REQUEST_URI'] : '/';
+	$url = home_url( strtok( $req, '?' ) );
+	return $url;
 }
 
 add_action( 'admin_post_nopriv_inquiry_submit', 'inquiry_board_handle_submit' );

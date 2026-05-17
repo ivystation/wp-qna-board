@@ -12,12 +12,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 $opts = wp_parse_args( get_option( 'inquiry_board_settings', [] ), inquiry_board_settings_defaults() );
 $site_key = (string) ( $opts['recaptcha_site_key'] ?? '' );
 $categories = get_terms( [ 'taxonomy' => 'inquiry_category', 'hide_empty' => false ] );
+
+$list_url = function_exists( 'inquiry_board_current_page_url' ) ? inquiry_board_current_page_url() : '';
+$redirect = ! empty( $atts['redirect'] ) ? (string) $atts['redirect'] : $list_url;
+$form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts['title'] : __( '문의하기', 'wp-qna-board' );
 ?>
+
+<div class="inquiry-form-header">
+	<?php if ( $form_title ) : ?>
+		<h2 class="inquiry-form-title"><?php echo esc_html( $form_title ); ?></h2>
+	<?php endif; ?>
+	<?php if ( $list_url ) : ?>
+		<p class="inquiry-form-back">
+			<a class="button inquiry-list-btn" href="<?php echo esc_url( $list_url ); ?>">
+				<?php esc_html_e( '← 목록으로', 'wp-qna-board' ); ?>
+			</a>
+		</p>
+	<?php endif; ?>
+</div>
 
 <form class="inquiry-form" method="post" enctype="multipart/form-data"
       action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 	<input type="hidden" name="action" value="inquiry_submit">
 	<?php wp_nonce_field( INQUIRY_BOARD_NONCE_ACTION, INQUIRY_BOARD_NONCE_FIELD ); ?>
+	<?php if ( $redirect ) : ?>
+		<input type="hidden" name="inquiry_redirect" value="<?php echo esc_attr( $redirect ); ?>">
+	<?php endif; ?>
 	<input type="text" name="inquiry_hp" value="" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;">
 
 	<p>
