@@ -49,43 +49,75 @@
 
 .inquiry-board-list {
 	margin: 1em 0 2em;
+	color: #0f172a;
+	font-size: 14.5px;
 }
 .inquiry-list-actions {
 	display: flex;
 	justify-content: flex-end;
-	margin-bottom: 0.75em;
+	margin-bottom: 12px;
 }
+/* 글쓰기 버튼 — 단일 페이지 「← 목록으로」 / 「답글 등록」 과 동일 박스 톤. */
 .inquiry-write-btn {
-	display: inline-block;
-	padding: 0.5em 1.2em;
-	background: #2271b1;
-	color: #fff;
-	border: 0;
-	border-radius: 4px;
-	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 14px;
+	background: #ffffff;
+	color: #0f172a;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+	font-size: 13px;
 	font-weight: 600;
+	line-height: 1.4;
+	text-decoration: none;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	text-transform: none;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 .inquiry-write-btn:hover,
 .inquiry-write-btn:focus {
-	background: #135e96;
-	color: #fff;
+	background: #eff6ff;
+	border-color: #98bce8;
+	color: #0f172a;
 	text-decoration: none;
 }
 
+/* 목록 테이블 — 둥근 모서리 + thead 진한 띠. 단일 페이지 메시지 박스 톤. */
 .inquiry-list {
 	width: 100%;
-	border-collapse: collapse;
+	border-collapse: separate;
+	border-spacing: 0;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+	overflow: hidden;
+	font-size: 14px;
+	color: #0f172a;
 }
-.inquiry-list th,
-.inquiry-list td {
-	padding: 0.6em 0.75em;
-	border-bottom: 1px solid #eee;
-	text-align: left;
+.inquiry-list thead th {
+	padding: 14px 12px;
+	background: #f1f5f9;
+	color: #0f172a;
+	font-weight: 700;
+	font-size: 13.5px;
+	border-bottom: 1px solid #e2e8f0;
+	text-align: center;
 	vertical-align: middle;
 }
-.inquiry-list th {
-	background: #f7f7f7;
-	font-weight: 600;
+.inquiry-list tbody td {
+	padding: 12px;
+	border-bottom: 1px solid #e2e8f0;
+	vertical-align: middle;
+	color: #0f172a;
+}
+.inquiry-list tbody tr:last-child td {
+	border-bottom: 0;
+}
+.inquiry-list tbody tr:hover td {
+	background: #f8fafc;
 }
 .inquiry-list .col-num,
 .inquiry-list .col-date {
@@ -101,60 +133,108 @@
 .inquiry-list .col-author,
 .inquiry-list .col-date {
 	text-align: center;
+	color: #475569;
+}
+.inquiry-list .col-title {
+	text-align: left;
 }
 .inquiry-list .col-title a {
+	color: #0f172a;
 	text-decoration: none;
-	color: inherit;
+	font-weight: 600;
 }
-.inquiry-list .col-title a:hover {
+.inquiry-list .col-title a:hover,
+.inquiry-list .col-title a:focus {
+	color: #1d4ed8;
 	text-decoration: underline;
 }
 .inquiry-list .inq-locked {
-	margin-left: 0.25em;
+	margin-left: 4px;
+}
+/* 제목 셀 오른쪽 끝의 댓글 카운트 뱃지 — 단일 페이지 .inquiry-thread-count 와 동일 톤. */
+.inquiry-list .inq-comment-count {
+	float: right;
+	margin-top: 1px;
+	padding: 1px 9px;
+	background: #1d4ed8;
+	color: #ffffff;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.6;
 }
 
+/* 페이지네이션 — list-style marker 강제 제거 + 박스 톤 버튼. */
 .inquiry-pagination {
-	margin: 1.5em 0;
+	margin: 18px 0;
 	text-align: center;
 }
+.inquiry-pagination ul,
+.inquiry-pagination ul.page-numbers,
+.inquiry-pagination ol,
+.inquiry-pagination li {
+	list-style: none !important;
+	list-style-type: none !important;
+	padding-left: 0;
+	background-image: none !important;
+}
+.inquiry-pagination li::marker { content: none; }
+.inquiry-pagination li::before { content: none; display: none; }
 .inquiry-pagination ul {
-	list-style: none;
 	display: inline-flex;
-	gap: 0.25em;
-	padding: 0;
-	margin: 0;
+	gap: 6px;
 	flex-wrap: wrap;
 	justify-content: center;
+	margin: 0;
 }
 .inquiry-pagination li {
 	margin: 0;
 }
-.inquiry-pagination a,
-.inquiry-pagination span {
-	display: inline-block;
-	padding: 0.35em 0.75em;
-	border: 1px solid #ddd;
-	border-radius: 3px;
-	color: inherit;
+.inquiry-pagination .page-numbers {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 36px;
+	height: 36px;
+	padding: 0 12px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+	color: #0f172a;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1;
 	text-decoration: none;
-	min-width: 2em;
-	text-align: center;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
-.inquiry-pagination span.current {
-	background: #2271b1;
-	color: #fff;
-	border-color: #2271b1;
+.inquiry-pagination a.page-numbers:hover,
+.inquiry-pagination a.page-numbers:focus {
+	background: #eff6ff;
+	border-color: #98bce8;
+	color: #0f172a;
+	text-decoration: none;
 }
-.inquiry-pagination a:hover {
-	background: #f0f0f0;
+.inquiry-pagination .page-numbers.current {
+	background: #1d4ed8;
+	border-color: #1d4ed8;
+	color: #ffffff;
+}
+.inquiry-pagination .page-numbers.dots {
+	background: transparent;
+	border-color: transparent;
+	color: #64748b;
+	min-width: 24px;
+	padding: 0 6px;
 }
 
 .inquiry-empty {
-	padding: 2em;
-	background: #f7f7f7;
+	padding: 28px 18px;
+	background: #ffffff;
+	border: 1px dashed #cbd5e1;
+	border-radius: 10px;
+	color: #64748b;
 	text-align: center;
-	color: #666;
-	border-radius: 4px;
+	font-size: 14px;
 }
 
 .inquiry-form-header {

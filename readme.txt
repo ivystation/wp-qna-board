@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.4.8
+Stable tag: 0.4.9
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,13 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.4.9 =
+* list: 목록 페이지(`[inquiry_form]` view=list) 스타일을 단일 페이지 톤으로 통일. 테이블 `.inquiry-list` 에 둥근 모서리(`border-radius: 10px` + `overflow: hidden`), thead 진한 띠(`#f1f5f9` 배경 + `#0f172a` 진한 글자 + 하단 보더), 행 hover `#f8fafc`.
+* list: 제목 셀(`.col-title`) 오른쪽 끝에 답변(댓글) 카운트 뱃지 `.inq-comment-count` 추가. 단일 페이지 `.inquiry-thread-count` 와 동일 톤(파란 pill, `#1d4ed8` 배경 + 흰 글자, `border-radius: 999px`, `font-size: 11px`). 카운트 0 인 글은 표시 안 함.
+* list: 글쓰기 버튼(`.inquiry-write-btn`) 을 단일 페이지 「← 목록으로」 / 「답글 등록」 박스 톤으로 통일.
+* pagination: `paginate_links( 'type' => 'list' )` 의 `<li>` marker 가 테마 CSS 영향으로 노출되던 점(•) 제거 — `.inquiry-pagination li` 에 `list-style: none !important` + `list-style-type: none !important` + `::marker { content: none }` + `::before { content: none }` 강제. 페이지 번호도 박스 톤(`.page-numbers` 36×36 박스, `current` 는 `#1d4ed8` 채움, `dots` 는 투명).
+* empty: 빈 상태(`.inquiry-empty`) 도 단일 페이지 `.inquiry-thread-empty` 와 동일 톤(흰 박스 + dashed `#cbd5e1` 보더).
 
 = 0.4.8 =
 * single: 본문·댓글 안의 plain URL 을 자동으로 `<a>` 태그로 감싸도록 `make_clickable` 적용. inquiry 본문은 `the_content` 필터 priority 15 에 보장 필터(`inquiry_board_ensure_clickable`)를 추가해 다른 플러그인이 코어의 make_clickable(priority 9) 을 제거해 둔 환경에서도 동작. 댓글은 `wpautop( make_clickable( wp_kses_post(...) ) )` 순서로 처리 — 줄바꿈이 살아있는 단계에서 URL 인식이 더 정확.

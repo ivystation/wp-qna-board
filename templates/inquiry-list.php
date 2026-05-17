@@ -81,8 +81,9 @@ $write_url = add_query_arg( 'ipv', 'write', $base_url );
 				$post_id    = (int) get_the_ID();
 				$terms      = get_the_terms( $post_id, 'inquiry_category' );
 				$cat_label  = ( $terms && ! is_wp_error( $terms ) ) ? $terms[0]->name : '';
-				$author_nm  = (string) get_post_meta( $post_id, '_inquiry_author_name', true );
-				$is_locked  = post_password_required( $post_id );
+				$author_nm     = (string) get_post_meta( $post_id, '_inquiry_author_name', true );
+				$is_locked     = post_password_required( $post_id );
+				$comment_count = (int) get_comments_number( $post_id );
 				?>
 				<tr>
 					<td class="col-num"><?php echo (int) $row_no; ?></td>
@@ -90,6 +91,9 @@ $write_url = add_query_arg( 'ipv', 'write', $base_url );
 					<td class="col-title">
 						<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
 						<?php if ( $is_locked ) : ?> <span class="inq-locked" aria-label="<?php esc_attr_e( '비밀글', 'wp-qna-board' ); ?>">🔒</span><?php endif; ?>
+						<?php if ( $comment_count > 0 ) : ?>
+							<span class="inq-comment-count" aria-label="<?php echo esc_attr( sprintf( __( '답변 %d개', 'wp-qna-board' ), $comment_count ) ); ?>"><?php echo (int) $comment_count; ?></span>
+						<?php endif; ?>
 					</td>
 					<td class="col-author"><?php echo esc_html( $author_nm !== '' ? $author_nm : __( '익명', 'wp-qna-board' ) ); ?></td>
 					<td class="col-date"><?php echo esc_html( get_the_date() ); ?></td>
