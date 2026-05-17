@@ -236,3 +236,161 @@ body.single-inquiry .post-content {
 		padding-top: 32px;
 	}
 }
+
+/* ---------------------------------------------------------------------------
+   inquiry 단일 페이지 — 답변 스레드(메시지 버블) UI
+   plugin/inc/single-view.php 의 inquiry_board_render_comment_thread() 출력.
+   ------------------------------------------------------------------------- */
+.inquiry-thread {
+	margin: 32px 0;
+	padding: 24px 20px;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+}
+.inquiry-thread-heading {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0 0 16px;
+	font-size: 18px;
+	font-weight: 700;
+	color: #0f172a;
+	line-height: 1.3;
+}
+.inquiry-thread-count {
+	display: inline-block;
+	padding: 2px 10px;
+	background: #1d4ed8;
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	border-radius: 999px;
+	line-height: 1.5;
+}
+.inquiry-thread-empty {
+	margin: 0;
+	padding: 18px;
+	color: #64748b;
+	text-align: center;
+	font-size: 14px;
+	background: #fff;
+	border: 1px dashed #cbd5e1;
+	border-radius: 8px;
+}
+.inquiry-thread-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.inquiry-thread-list > li {
+	margin: 0;
+}
+.inquiry-msg {
+	padding: 14px 16px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+}
+.inquiry-msg-admin {
+	background: #eff6ff;
+	border-color: #bfdbfe;
+}
+.inquiry-msg-head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	align-items: center;
+	margin-bottom: 8px;
+	font-size: 13px;
+	color: #475569;
+}
+.inquiry-msg-head strong {
+	color: #0f172a;
+	font-size: 14px;
+}
+.inquiry-msg-head time {
+	color: #64748b;
+}
+.inquiry-msg-role {
+	display: inline-block;
+	padding: 2px 8px;
+	font-size: 11px;
+	font-weight: 700;
+	border-radius: 4px;
+	line-height: 1.5;
+}
+.inquiry-msg-role-admin {
+	background: #1d4ed8;
+	color: #ffffff;
+}
+.inquiry-msg-role-owner {
+	background: #059669;
+	color: #ffffff;
+}
+.inquiry-msg-body {
+	color: #0f172a;
+	font-size: 14.5px;
+	line-height: 1.65;
+	word-break: break-word;
+}
+.inquiry-msg-body p {
+	margin: 0 0 0.6em;
+}
+.inquiry-msg-body p:last-child {
+	margin-bottom: 0;
+}
+
+.inquiry-reply-form {
+	margin-top: 18px;
+	padding-top: 18px;
+	border-top: 1px solid #e2e8f0;
+}
+.inquiry-reply-form label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 8px;
+	font-size: 14px;
+	color: #0f172a;
+}
+.inquiry-reply-form textarea {
+	width: 100%;
+	min-height: 120px;
+	padding: 10px 12px;
+	border: 1px solid #cbd5e1;
+	border-radius: 8px;
+	font-size: 14px;
+	font-family: inherit;
+	resize: vertical;
+	box-sizing: border-box;
+	background: #fff;
+}
+.inquiry-reply-submit {
+	margin-top: 10px;
+	padding: 9px 20px;
+	background: #1d4ed8;
+	color: #ffffff;
+	border: 0;
+	border-radius: 8px;
+	font-weight: 600;
+	font-size: 14px;
+	cursor: pointer;
+	line-height: 1.4;
+}
+.inquiry-reply-submit:hover,
+.inquiry-reply-submit:focus {
+	background: #1e40af;
+	color: #ffffff;
+}
+
+@media (max-width: 640px) {
+	.inquiry-thread {
+		padding: 18px 14px;
+	}
+	.inquiry-msg {
+		padding: 12px 13px;
+	}
+}

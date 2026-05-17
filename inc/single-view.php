@@ -98,5 +98,92 @@ function inquiry_board_decorate_content( string $content ): string {
 		$suffix  .= '<p class="inquiry-owner-actions"><a class="button" href="' . esc_url( $edit_url ) . '">' . esc_html__( '수정', 'wp-qna-board' ) . '</a></p>';
 	}
 
+	// 댓글 스레드(답변) — 테마 single.php 의 comments_template 호출 여부와 무관하게
+	// 플러그인이 자체적으로 출력하여 inquiry 글에서 항상 답변이 보이도록 한다.
+	$suffix .= inquiry_board_render_comment_thread( $post_id, $is_owner );
+
 	return $content . $suffix;
+}
+
+/**
+ * inquiry 단일 페이지용 댓글 스레드(메시지 버블) + 본인 답글 폼 렌더링.
+ *
+ * 마이그레이션된 댓글은 wp_commentmeta._is_admin_reply 메타로 관리자 답변 여부가
+ * 마킹되어 있다. 메타가 없으면 user_id 의 권한으로 폴백 판정한다.
+ */
+function inquiry_board_render_comment_thread( int $post_id, bool $is_owner ): string {
+	if ( $post_id <= 0 ) {
+		return '';
+	}
+
+	$comments = get_comments( [
+		'post_id' => $post_id,
+		'status'  => 'approve',
+		'order'   => 'ASC',
+		'orderby' => 'comment_date_gmt',
+		'type'    => 'comment',
+	] );
+
+	$total            = is_array( $comments ) ? count( $comments ) : 0;
+	$reply_nonce_html = $is_owner ? wp_nonce_field( 'inquiry_board_reply', 'inquiry_board_reply_nonce', true, false ) : '';
+	$admin_user       = current_user_can( 'moderate_comments' );
+	$date_fmt         = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
+
+	ob_start();
+	?>
+	<section id="inquiry-thread" class="inquiry-thread" aria-label="<?php esc_attr_e( '답변 스레드', 'wp-qna-board' ); ?>">
+		<h2 class="inquiry-thread-heading">
+			<?php esc_html_e( '답변', 'wp-qna-board' ); ?>
+			<span class="inquiry-thread-count"><?php echo (int) $total; ?></span>
+		</h2>
+
+		<?php if ( $total === 0 ) : ?>
+			<p class="inquiry-thread-empty"><?php esc_html_e( '아직 답변이 등록되지 않았습니다.', 'wp-qna-board' ); ?></p>
+		<?php else : ?>
+			<ol class="inquiry-thread-list">
+			<?php foreach ( $comments as $c ) :
+				$cid            = (int) $c->comment_ID;
+				$is_admin_reply = (bool) get_comment_meta( $cid, '_is_admin_reply', true );
+				if ( ! $is_admin_reply && (int) $c->user_id > 0 ) {
+					// 마이그레이션 누락분 폴백: 작성자가 관리자 권한 사용자면 관리자 답변으로 간주.
+					$is_admin_reply = (bool) user_can( (int) $c->user_id, 'moderate_comments' );
+				}
+				$role_label = $is_admin_reply
+					? __( '관리자 답변', 'wp-qna-board' )
+					: __( '답글', 'wp-qna-board' );
+				$role_cls   = $is_admin_reply ? 'inquiry-msg-role-admin' : 'inquiry-msg-role-owner';
+				$bubble_cls = $is_admin_reply ? 'inquiry-msg inquiry-msg-admin' : 'inquiry-msg';
+				?>
+				<li>
+					<article id="inquiry-comment-<?php echo esc_attr( (string) $cid ); ?>" class="<?php echo esc_attr( $bubble_cls ); ?>">
+						<header class="inquiry-msg-head">
+							<strong><?php echo esc_html( (string) $c->comment_author ); ?></strong>
+							<time datetime="<?php echo esc_attr( mysql2date( DATE_W3C, $c->comment_date_gmt, false ) ); ?>"><?php echo esc_html( mysql2date( $date_fmt, $c->comment_date, true ) ); ?></time>
+							<span class="inquiry-msg-role <?php echo esc_attr( $role_cls ); ?>"><?php echo esc_html( $role_label ); ?></span>
+						</header>
+						<div class="inquiry-msg-body">
+							<?php
+							// 3rd party `the_content` 훅 Fatal 회피 위해 wpautop(wp_kses_post()) 사용.
+							echo wpautop( wp_kses_post( (string) $c->comment_content ) );
+							?>
+						</div>
+					</article>
+				</li>
+			<?php endforeach; ?>
+			</ol>
+		<?php endif; ?>
+
+		<?php if ( $is_owner ) : ?>
+			<form class="inquiry-reply-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<input type="hidden" name="action" value="inquiry_reply" />
+				<input type="hidden" name="inquiry_post_id" value="<?php echo (int) $post_id; ?>" />
+				<?php echo $reply_nonce_html; // nonce 필드(이미 escape 처리됨) ?>
+				<label for="inquiry-reply-content"><?php echo $admin_user ? esc_html__( '관리자 답변 작성', 'wp-qna-board' ) : esc_html__( '추가 답글 작성', 'wp-qna-board' ); ?></label>
+				<textarea id="inquiry-reply-content" name="inquiry_reply_content" rows="5" required></textarea>
+				<button type="submit" class="inquiry-reply-submit"><?php esc_html_e( '답글 등록', 'wp-qna-board' ); ?></button>
+			</form>
+		<?php endif; ?>
+	</section>
+	<?php
+	return (string) ob_get_clean();
 }

@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.4.4
+Stable tag: 0.4.5
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,12 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.4.5 =
+* single: 단일 inquiry 페이지에 댓글 스레드(메시지 버블) UI 를 플러그인이 자체적으로 출력한다. 테마 single.php 가 `comments_template()` 을 호출하지 않거나 옵션으로 막아 둔 경우(예: Uncode 테마의 `_uncode_{post_type}_comments` 옵션) 에도 inquiry 글에서 답변이 항상 보이도록 보장.
+* single: 본인 인증 세션 사용자(또는 관리자) 에게는 답글 폼이 함께 노출된다. POST 는 `admin-post.php?action=inquiry_reply` 로 처리되고 `wp_new_comment()` 가 기존 `preprocess_comment`·`pre_comment_approved`·`comment_post` 필터 체인을 그대로 통과하므로 권한 게이트와 자동 승인이 일관되게 작동.
+* single: 마이그레이션된 댓글의 관리자 답변 판별은 `_is_admin_reply` 메타 우선, 없으면 `user_id` 의 `moderate_comments` 폴백.
+* style: 메시지 버블·역할 배지·답글 폼 기본 스타일 추가 (관리자 답변 `#eff6ff` / 작성자 답글 `#ffffff`).
 
 = 0.4.4 =
 * settings: 일반설정 탭에 "레거시 URL 처리" 섹션 추가. 체크박스 `legacy_redirect_enabled` (기본값 off) 로 KBoard 등 레거시 URL(`?mod=document&uid=NNN`)을 마이그레이션된 새 inquiry 글로 301 리다이렉트할지 선택.
