@@ -256,7 +256,11 @@ function inquiry_board_fix_source_dir( $source, $remote_source, $upgrader, $hook
 
 /**
  * 캐시 강제 갱신: ?inquiry-board-flush-update=1 (관리자 전용).
- * 업데이트 화면에서 "업데이트 확인" 동작 후에도 GitHub 호출이 안 보이면 사용한다.
+ *
+ * 단순히 transient 만 비우면 plugins.php 로 돌아갔을 때 wp_update_plugins() 가
+ * 즉시 호출되지 않아 한 사이클 동안 빈 상태가 유지된다. 그래서 캐시 삭제 직후
+ * wp_update_plugins() 를 직접 호출해 새 transient 를 작성하고 업데이트 가능
+ * 화면으로 리다이렉트한다.
  */
 add_action( 'admin_init', static function (): void {
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -267,6 +271,49 @@ add_action( 'admin_init', static function (): void {
 	}
 	delete_site_transient( INQUIRY_BOARD_GH_CACHE );
 	delete_site_transient( 'update_plugins' );
-	wp_safe_redirect( admin_url( 'plugins.php' ) );
+	if ( function_exists( 'wp_clean_plugins_cache' ) ) {
+		wp_clean_plugins_cache( true );
+	}
+	if ( ! function_exists( 'wp_update_plugins' ) ) {
+		require_once ABSPATH . WPINC . '/update.php';
+	}
+	if ( function_exists( 'wp_update_plugins' ) ) {
+		wp_update_plugins();
+	}
+	wp_safe_redirect( admin_url( 'plugins.php?plugin_status=upgrade' ) );
 	exit;
 } );
+
+/**
+ * 설정 화면 자동 업데이트 섹션에 노출할 진단 데이터.
+ *
+ * GitHub API 응답이 정상인지, 현재 버전과 비교 결과가 무엇인지,
+ * 캐시·토큰 상태가 어떤지 한눈에 보여준다. 실제 업데이트가 노출되지
+ * 않을 때 어디서 막혔는지 추적하는 용도.
+ */
+function inquiry_board_updater_diagnostics(): array {
+	$release = inquiry_board_fetch_latest_release();
+	$current = INQUIRY_BOARD_VERSION;
+	$latest  = (string) ( $release['version'] ?? '' );
+
+	$transient = get_site_transient( 'update_plugins' );
+	$basename  = inquiry_board_plugin_basename();
+	$in_resp   = is_object( $transient ) && isset( $transient->response[ $basename ] );
+	$in_noupd  = is_object( $transient ) && isset( $transient->no_update[ $basename ] );
+
+	return [
+		'current_version' => $current,
+		'latest_version'  => $latest,
+		'latest_tag'      => (string) ( $release['tag'] ?? '' ),
+		'zip_url'         => (string) ( $release['zip_url'] ?? '' ),
+		'published_at'    => (string) ( $release['published_at'] ?? '' ),
+		'html_url'        => (string) ( $release['html_url'] ?? '' ),
+		'is_newer'        => $latest !== '' && version_compare( $latest, $current, '>' ),
+		'cache_hit'       => (bool) get_site_transient( INQUIRY_BOARD_GH_CACHE ),
+		'token_set'       => (bool) inquiry_board_gh_token(),
+		'token_const'     => defined( 'INQUIRY_BOARD_GH_TOKEN' ) && INQUIRY_BOARD_GH_TOKEN,
+		'basename'        => $basename,
+		'in_response'     => $in_resp,
+		'in_no_update'    => $in_noupd,
+	];
+}

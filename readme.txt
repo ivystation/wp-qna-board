@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.4.0
+Stable tag: 0.4.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,10 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.4.1 =
+* updater: "업데이트 캐시 강제 갱신" 버튼이 wp_update_plugins() 를 즉시 호출하도록 보강. 캐시 비움 직후 한 사이클 동안 빈 상태가 유지되는 문제 해결.
+* settings: 자동 업데이트 섹션에 진단 표 추가 (현재 버전 · GitHub 최신 버전 · update_plugins.response 등록 여부 · 캐시 상태 · 토큰 상태 · zip URL).
 
 = 0.4.0 =
 * 대시보드 메뉴 개편: Settings → Q&A 게시판을 Q&A게시판 → 설정 으로 이동 (add_submenu_page).

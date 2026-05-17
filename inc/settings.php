@@ -262,6 +262,96 @@ function inquiry_board_settings_render_general(): void {
 					</p>
 				</td>
 			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( '업데이트 진단', 'wp-qna-board' ); ?></th>
+				<td>
+					<?php
+					$diag = function_exists( 'inquiry_board_updater_diagnostics' ) ? inquiry_board_updater_diagnostics() : [];
+					if ( ! $diag ) {
+						echo '<em>' . esc_html__( '진단 함수를 로드하지 못했습니다.', 'wp-qna-board' ) . '</em>';
+					} else {
+						$ok = static function ( bool $b ): string {
+							return $b ? '<span style="color:#1e7e34;">✓</span>' : '<span style="color:#b32d2e;">✗</span>';
+						};
+						?>
+						<table class="widefat striped" style="max-width:720px;">
+							<tbody>
+								<tr>
+									<th style="width:240px;"><?php esc_html_e( '현재 설치 버전', 'wp-qna-board' ); ?></th>
+									<td><code><?php echo esc_html( $diag['current_version'] ); ?></code></td>
+								</tr>
+								<tr>
+									<th><?php esc_html_e( 'GitHub 최신 버전', 'wp-qna-board' ); ?></th>
+									<td>
+										<?php if ( $diag['latest_version'] !== '' ) : ?>
+											<code><?php echo esc_html( $diag['latest_version'] ); ?></code>
+											<small>(tag: <code><?php echo esc_html( $diag['latest_tag'] ); ?></code>)</small>
+										<?php else : ?>
+											<em><?php esc_html_e( '응답을 받지 못했습니다 (API 호출 실패 또는 빈 캐시).', 'wp-qna-board' ); ?></em>
+										<?php endif; ?>
+									</td>
+								</tr>
+								<tr>
+									<th><?php esc_html_e( '새 버전이 더 높은가', 'wp-qna-board' ); ?></th>
+									<td><?php echo $ok( (bool) $diag['is_newer'] ); ?></td>
+								</tr>
+								<tr>
+									<th><?php esc_html_e( 'update_plugins.response 등록', 'wp-qna-board' ); ?></th>
+									<td>
+										<?php echo $ok( (bool) $diag['in_response'] ); ?>
+										<?php if ( ! $diag['in_response'] && $diag['in_no_update'] ) : ?>
+											<small>(<?php esc_html_e( 'no_update 에 들어가 있음 — 비교상 새 버전이 더 높지 않다고 판단된 상태', 'wp-qna-board' ); ?>)</small>
+										<?php endif; ?>
+									</td>
+								</tr>
+								<tr>
+									<th><?php esc_html_e( 'GitHub 캐시 상태', 'wp-qna-board' ); ?></th>
+									<td><?php echo $diag['cache_hit'] ? esc_html__( 'HIT (캐시 사용 중)', 'wp-qna-board' ) : esc_html__( 'MISS', 'wp-qna-board' ); ?></td>
+								</tr>
+								<tr>
+									<th><?php esc_html_e( '인증 토큰', 'wp-qna-board' ); ?></th>
+									<td>
+										<?php if ( $diag['token_const'] ) : ?>
+											<?php esc_html_e( 'wp-config.php 상수 사용', 'wp-qna-board' ); ?>
+										<?php elseif ( $diag['token_set'] ) : ?>
+											<?php esc_html_e( '옵션값 사용', 'wp-qna-board' ); ?>
+										<?php else : ?>
+											<?php esc_html_e( '없음 (public repo 라 정상)', 'wp-qna-board' ); ?>
+										<?php endif; ?>
+									</td>
+								</tr>
+								<tr>
+									<th><?php esc_html_e( '플러그인 basename', 'wp-qna-board' ); ?></th>
+									<td><code><?php echo esc_html( $diag['basename'] ); ?></code></td>
+								</tr>
+								<tr>
+									<th><?php esc_html_e( '배포물 zip URL', 'wp-qna-board' ); ?></th>
+									<td>
+										<?php if ( $diag['zip_url'] ) : ?>
+											<a href="<?php echo esc_url( $diag['zip_url'] ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $diag['zip_url'] ); ?></a>
+										<?php else : ?>
+											<em>—</em>
+										<?php endif; ?>
+									</td>
+								</tr>
+								<?php if ( $diag['html_url'] ) : ?>
+									<tr>
+										<th><?php esc_html_e( '릴리스 페이지', 'wp-qna-board' ); ?></th>
+										<td><a href="<?php echo esc_url( $diag['html_url'] ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $diag['html_url'] ); ?></a></td>
+									</tr>
+								<?php endif; ?>
+							</tbody>
+						</table>
+						<?php if ( $diag['is_newer'] && ! $diag['in_response'] ) : ?>
+							<p style="margin-top:8px;">
+								<?php esc_html_e( '새 버전이 인식됐지만 아직 update_plugins transient 에 주입되지 않았습니다. 위의 "업데이트 캐시 강제 갱신" 버튼을 누르거나 새로고침하면 즉시 반영됩니다.', 'wp-qna-board' ); ?>
+							</p>
+						<?php endif; ?>
+						<?php
+					}
+					?>
+				</td>
+			</tr>
 		</table>
 		<?php submit_button(); ?>
 	</form>
