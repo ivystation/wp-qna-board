@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.4.5
+Stable tag: 0.4.6
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,14 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.4.6 =
+* single: 본문 상단에 "← 목록으로" 링크 추가. 쇼트코드 `[inquiry_form]` 이 박힌 publish 페이지를 자동 탐지(`inquiry_board_get_list_page_url()`)하여 그 URL 로 이동. 6시간 transient 캐시 + `save_post_page` / `delete_post` 훅으로 무효화. 옵션 `inquiry_board_list_page_id` 로 수동 override 가능.
+* single: inquiry 본문 영역을 `.inquiry-single-wrap` 으로 감싸 테마와 독립적으로 폭을 75% (모바일 100%) 로 정돈.
+* style: 답변 등록 버튼(`.inquiry-reply-submit`) 을 테마 기본 버튼 스타일 의존에서 분리. 댓글 박스(`.inquiry-msg`) 와 동일한 흰 박스 + 1px `#e2e8f0` 보더 + 10px radius. hover/focus 시 admin 박스 톤(`#eff6ff` / `#98bce8`).
+* style: 답변 박스 메타 헤더(`.inquiry-msg-head`) 를 박스 상단 가득한 띠로 분리. 본문보다 진한 톤(`#f1f5f9` / admin `#dbeafe`) + 하단 보더. 본문(`.inquiry-msg-body`) 좌우 패딩 16px 로 별도 지정.
+* style: admin 메시지 박스 보더 색 `#bfdbfe` → `#98bce8` (사용자 시안 적용).
+* style: "목록으로" 링크 자체도 박스 톤(`.inquiry-back-link`) 으로 디자인.
 
 = 0.4.5 =
 * single: 단일 inquiry 페이지에 댓글 스레드(메시지 버블) UI 를 플러그인이 자체적으로 출력한다. 테마 single.php 가 `comments_template()` 을 호출하지 않거나 옵션으로 막아 둔 경우(예: Uncode 테마의 `_uncode_{post_type}_comments` 옵션) 에도 inquiry 글에서 답변이 항상 보이도록 보장.

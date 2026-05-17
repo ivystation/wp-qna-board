@@ -237,6 +237,53 @@ body.single-inquiry .post-content {
 	}
 }
 
+/* inquiry 본문 폭을 테마 컨테이너의 75% 로 좁힌다 (모바일은 100%). */
+.inquiry-single-wrap {
+	width: 75%;
+	max-width: 75%;
+	margin-left: auto;
+	margin-right: auto;
+	box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+	.inquiry-single-wrap {
+		width: 100%;
+		max-width: 100%;
+	}
+}
+
+/* "목록으로" 링크 */
+.inquiry-back-to-list {
+	margin: 0 0 18px;
+}
+.inquiry-back-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 14px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+	color: #0f172a;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.4;
+	text-decoration: none;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.inquiry-back-link:hover,
+.inquiry-back-link:focus {
+	background: #eff6ff;
+	border-color: #98bce8;
+	color: #0f172a;
+	text-decoration: none;
+}
+.inquiry-back-link span[aria-hidden="true"] {
+	font-size: 15px;
+	line-height: 1;
+}
+
 /* ---------------------------------------------------------------------------
    inquiry 단일 페이지 — 답변 스레드(메시지 버블) UI
    plugin/inc/single-view.php 의 inquiry_board_render_comment_thread() 출력.
@@ -290,23 +337,33 @@ body.single-inquiry .post-content {
 	margin: 0;
 }
 .inquiry-msg {
-	padding: 14px 16px;
+	padding: 0 0 14px;
 	background: #ffffff;
 	border: 1px solid #e2e8f0;
 	border-radius: 10px;
+	overflow: hidden;
 }
 .inquiry-msg-admin {
 	background: #eff6ff;
-	border-color: #bfdbfe;
+	border-color: #98bce8;
 }
+/* 헤더 영역: 박스 상단을 가득 채우는 띠. 본문보다 진한 톤으로 구분 강조. */
 .inquiry-msg-head {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 10px;
 	align-items: center;
-	margin-bottom: 8px;
+	margin: 0 0 12px;
+	padding: 12px 16px;
+	min-height: 44px;
+	background: #f1f5f9;
+	border-bottom: 1px solid #e2e8f0;
 	font-size: 13px;
 	color: #475569;
+}
+.inquiry-msg-admin .inquiry-msg-head {
+	background: #dbeafe;
+	border-bottom-color: #98bce8;
 }
 .inquiry-msg-head strong {
 	color: #0f172a;
@@ -332,6 +389,7 @@ body.single-inquiry .post-content {
 	color: #ffffff;
 }
 .inquiry-msg-body {
+	padding: 0 16px;
 	color: #0f172a;
 	font-size: 14.5px;
 	line-height: 1.65;
@@ -368,22 +426,29 @@ body.single-inquiry .post-content {
 	box-sizing: border-box;
 	background: #fff;
 }
+/* 답변 등록 버튼 — 테마와 독립적으로 댓글 박스(.inquiry-msg) 와 동일한 톤. */
 .inquiry-reply-submit {
+	display: inline-block;
 	margin-top: 10px;
-	padding: 9px 20px;
-	background: #1d4ed8;
-	color: #ffffff;
-	border: 0;
-	border-radius: 8px;
+	padding: 14px 16px;
+	background: #ffffff;
+	color: #0f172a;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
 	font-weight: 600;
 	font-size: 14px;
-	cursor: pointer;
 	line-height: 1.4;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	text-transform: none;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 .inquiry-reply-submit:hover,
 .inquiry-reply-submit:focus {
-	background: #1e40af;
-	color: #ffffff;
+	background: #eff6ff;
+	border-color: #98bce8;
+	color: #0f172a;
 }
 
 @media (max-width: 640px) {

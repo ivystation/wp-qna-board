@@ -73,6 +73,9 @@ function inquiry_board_decorate_content( string $content ): string {
 		return inquiry_board_render_edit_form( $post_id );
 	}
 
+	// 본문 상단: 목록으로 돌아가는 링크. 쇼트코드 [inquiry_form] 이 박힌 페이지로 이동.
+	$prefix = inquiry_board_render_back_to_list();
+
 	$suffix = '';
 
 	// 첨부 파일 목록
@@ -102,8 +105,71 @@ function inquiry_board_decorate_content( string $content ): string {
 	// 플러그인이 자체적으로 출력하여 inquiry 글에서 항상 답변이 보이도록 한다.
 	$suffix .= inquiry_board_render_comment_thread( $post_id, $is_owner );
 
-	return $content . $suffix;
+	// 본문 폭을 좁히는 래퍼 — 테마와 독립적으로 inquiry 단일 페이지를 75% 폭으로 묶는다.
+	return '<div class="inquiry-single-wrap">' . $prefix . $content . $suffix . '</div>';
 }
+
+/**
+ * 단일 inquiry 페이지 상단에 노출할 "목록으로" 링크.
+ * 쇼트코드 [inquiry_form] 이 박힌 페이지로 이동한다. 페이지 위치가 변경되어도
+ * 자동 탐지되도록 inquiry_board_get_list_page_url() 헬퍼를 사용.
+ */
+function inquiry_board_render_back_to_list(): string {
+	$url = inquiry_board_get_list_page_url();
+	if ( $url === '' ) {
+		return '';
+	}
+	return sprintf(
+		'<p class="inquiry-back-to-list"><a class="inquiry-back-link" href="%s"><span aria-hidden="true">&larr;</span> %s</a></p>',
+		esc_url( $url ),
+		esc_html__( '목록으로', 'wp-qna-board' )
+	);
+}
+
+/**
+ * [inquiry_form] 쇼트코드가 박힌 가장 빠른 ID 의 publish 페이지 URL 을 반환.
+ * 6시간 transient 로 캐시하고, 페이지 저장/삭제 훅에서 무효화한다.
+ *
+ *  - 폴백: 옵션 'page_for_inquiry_board' (관리 화면에서 명시 지정 가능)
+ *  - 모두 실패하면 빈 문자열 반환 (버튼 자체 미노출).
+ */
+function inquiry_board_get_list_page_url(): string {
+	$override = (int) get_option( 'inquiry_board_list_page_id', 0 );
+	if ( $override > 0 ) {
+		$url = (string) get_permalink( $override );
+		if ( $url ) {
+			return $url;
+		}
+	}
+
+	$cached = get_transient( 'inquiry_board_list_page_url' );
+	if ( is_string( $cached ) ) {
+		return $cached;
+	}
+
+	global $wpdb;
+	$page_id = (int) $wpdb->get_var(
+		"SELECT ID FROM {$wpdb->posts}
+		 WHERE post_type = 'page' AND post_status = 'publish'
+		   AND post_content LIKE '%[inquiry_form%'
+		 ORDER BY ID ASC
+		 LIMIT 1"
+	);
+
+	$url = $page_id ? (string) get_permalink( $page_id ) : '';
+	set_transient( 'inquiry_board_list_page_url', $url, 6 * HOUR_IN_SECONDS );
+	return $url;
+}
+
+// 페이지 저장/삭제 시 자동 탐지 캐시 무효화.
+add_action( 'save_post_page', static function (): void {
+	delete_transient( 'inquiry_board_list_page_url' );
+} );
+add_action( 'delete_post', static function ( $post_id ): void {
+	if ( get_post_type( (int) $post_id ) === 'page' ) {
+		delete_transient( 'inquiry_board_list_page_url' );
+	}
+} );
 
 /**
  * inquiry 단일 페이지용 댓글 스레드(메시지 버블) + 본인 답글 폼 렌더링.
