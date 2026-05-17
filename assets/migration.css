@@ -1,0 +1,178 @@
+/* Q&A 게시판 — 마이그레이션 러너 UI */
+
+.ibm-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 16px 20px;
+	margin: 14px 0;
+}
+
+.ibm-card h3 {
+	margin: 0 0 10px;
+	font-size: 14px;
+	color: #1d2327;
+}
+
+.ibm-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 8px 0;
+	flex-wrap: wrap;
+}
+
+.ibm-row label {
+	margin-right: 4px;
+}
+
+.ibm-badge {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 10px;
+	font-size: 12px;
+	font-weight: 600;
+	background: #f0f0f1;
+	color: #50575e;
+}
+
+.ibm-badge[data-status="running"]   { background: #2271b1; color: #fff; }
+.ibm-badge[data-status="done"]      { background: #008a20; color: #fff; }
+.ibm-badge[data-status="cancelled"] { background: #b32d2e; color: #fff; }
+.ibm-badge[data-status="error"]     { background: #d63638; color: #fff; }
+.ibm-badge[data-status="paused"]    { background: #dba617; color: #1d2327; }
+
+.ibm-progress-row {
+	display: grid;
+	grid-template-columns: 80px 1fr;
+	align-items: center;
+	gap: 10px;
+	margin: 6px 0;
+}
+
+.ibm-progress-label {
+	font-size: 13px;
+	color: #50575e;
+}
+
+.ibm-progress-bar {
+	position: relative;
+	height: 18px;
+	background: #f0f0f1;
+	border: 1px solid #c3c4c7;
+	border-radius: 9px;
+	overflow: hidden;
+}
+
+.ibm-progress-fill {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	width: 0%;
+	background: linear-gradient(90deg, #2271b1, #135e96);
+	color: #fff;
+	font-size: 11px;
+	font-weight: 600;
+	transition: width 0.4s ease;
+	white-space: nowrap;
+}
+
+.ibm-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	gap: 8px 12px;
+	margin: 10px 0 0;
+	padding: 10px 12px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	font-size: 12px;
+}
+
+.ibm-stats div {
+	display: flex;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.ibm-stats strong {
+	color: #1d2327;
+	font-variant-numeric: tabular-nums;
+}
+
+.ibm-stats .ibm-stat-errors {
+	color: #d63638;
+}
+
+.ibm-log,
+.ibm-errors {
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	margin: 8px 0 0;
+	padding: 10px 12px;
+	background: #1d2327;
+	color: #f0f0f1;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11.5px;
+	line-height: 1.5;
+	white-space: pre;
+	overflow: auto;
+	max-height: 220px;
+	border-radius: 4px;
+}
+
+.ibm-errors {
+	background: #2c0b0e;
+	color: #ffd9d9;
+	max-height: 150px;
+}
+
+.ibm-dryrun-block {
+	margin: 10px 0;
+	padding: 10px 12px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12px;
+	line-height: 1.55;
+	white-space: pre-wrap;
+	max-height: 320px;
+	overflow: auto;
+}
+
+.ibm-warning {
+	color: #8a6d3b;
+	background: #fcf8e3;
+	border: 1px solid #f0e1a8;
+	padding: 8px 12px;
+	border-radius: 4px;
+	margin: 8px 0;
+	font-size: 12.5px;
+}
+
+.ibm-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 12px 0 0;
+}
+
+.ibm-actions button[disabled] {
+	cursor: not-allowed;
+	opacity: 0.55;
+}
+
+.ibm-stage-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	font-size: 13px;
+	color: #50575e;
+}
+
+.ibm-stage-row strong {
+	color: #2271b1;
+}

@@ -20,6 +20,59 @@ const INQUIRY_BOARD_PARENT_SLUG   = 'edit.php?post_type=inquiry';
 
 add_action( 'admin_menu', 'inquiry_board_settings_menu' );
 add_action( 'admin_init', 'inquiry_board_settings_register' );
+add_action( 'admin_enqueue_scripts', 'inquiry_board_settings_enqueue' );
+
+/**
+ * 마이그레이션 탭(KBoard) 진입 시 JS/CSS 와 부트스트랩 데이터 enqueue.
+ */
+function inquiry_board_settings_enqueue( string $hook_suffix ): void {
+	if ( ! isset( $_GET['page'] ) || $_GET['page'] !== INQUIRY_BOARD_SETTINGS_PAGE ) {
+		return;
+	}
+	$tab    = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'general';
+	$source = isset( $_GET['source'] ) ? sanitize_key( (string) $_GET['source'] ) : 'kboard';
+	if ( $tab !== 'migration' || $source !== 'kboard' ) {
+		return;
+	}
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	wp_enqueue_style(
+		'inquiry-migration',
+		INQUIRY_BOARD_URL . 'assets/migration.css',
+		[],
+		INQUIRY_BOARD_VERSION
+	);
+	wp_enqueue_script(
+		'inquiry-migration',
+		INQUIRY_BOARD_URL . 'assets/migration.js',
+		[],
+		INQUIRY_BOARD_VERSION,
+		true
+	);
+
+	$mig      = wp_parse_args( get_option( 'inquiry_board_migration', [] ), inquiry_board_migration_defaults() );
+	$board_id = (int) ( $mig['kboard_board_id'] ?? 0 );
+	$batch    = max( 10, min( 500, (int) ( $mig['kboard_batch'] ?? 100 ) ) );
+
+	$board_name = '';
+	if ( $board_id > 0 ) {
+		global $wpdb;
+		$board_name = (string) $wpdb->get_var( $wpdb->prepare(
+			"SELECT board_name FROM {$wpdb->prefix}kboard_board_setting WHERE uid=%d",
+			$board_id
+		) );
+	}
+
+	wp_localize_script( 'inquiry-migration', 'InquiryMigration', [
+		'ajax_url'   => admin_url( 'admin-ajax.php' ),
+		'nonce'      => wp_create_nonce( INQUIRY_BOARD_RUNNER_NONCE ),
+		'board_id'   => $board_id,
+		'board_name' => $board_name,
+		'batch'      => $batch,
+	] );
+}
 
 function inquiry_board_settings_menu(): void {
 	add_submenu_page(
@@ -511,7 +564,16 @@ function inquiry_board_settings_render_migration_kboard(): void {
 
 	<hr>
 
-	<h3><?php esc_html_e( '실행 명령 (WP-CLI)', 'wp-qna-board' ); ?></h3>
+	<h3><?php esc_html_e( '관리 UI 에서 실행 (권장)', 'wp-qna-board' ); ?></h3>
+	<p class="description">
+		<?php esc_html_e( '브라우저를 열어둔 상태에서 단계별로 진행하며, 진행률·통계·로그가 실시간 표시됩니다. 페이지를 닫거나 새로고침해도 cursor 가 보존되어 이어 진행할 수 있습니다.', 'wp-qna-board' ); ?>
+	</p>
+
+	<?php inquiry_board_settings_render_migration_runner_ui( (int) $mig['kboard_board_id'] ); ?>
+
+	<hr>
+
+	<h3><?php esc_html_e( '실행 명령 (WP-CLI · SSH 직접 실행 시)', 'wp-qna-board' ); ?></h3>
 	<?php
 	$dry_cmd  = inquiry_board_build_kboard_cli( $mig, true );
 	$run_cmd  = inquiry_board_build_kboard_cli( $mig, false );
@@ -613,6 +675,107 @@ function inquiry_board_settings_render_usage(): void {
 				<li><a href="<?php echo esc_url( $archive ); ?>" target="_blank" rel="noopener"><?php esc_html_e( '프론트엔드 아카이브 보기', 'wp-qna-board' ); ?></a></li>
 			<?php endif; ?>
 		</ul>
+	</div>
+	<?php
+}
+
+/**
+ * KBoard 마이그레이션 러너 UI (Dry-run → 시작 → 진행률 모니터링).
+ *
+ * AJAX 엔드포인트는 inc/migration-runner.php 가 처리한다.
+ */
+function inquiry_board_settings_render_migration_runner_ui( int $board_id ): void {
+	if ( $board_id <= 0 ) {
+		?>
+		<div class="ibm-warning">
+			<?php esc_html_e( '먼저 위에서 KBoard 게시판을 선택하고 "옵션 저장" 버튼을 누른 뒤 다시 이 화면으로 돌아오세요. 그 다음 단계가 활성화됩니다.', 'wp-qna-board' ); ?>
+		</div>
+		<?php
+		return;
+	}
+	?>
+	<div class="ibm-card">
+		<h3><?php esc_html_e( '1. Dry-run 검증', 'wp-qna-board' ); ?></h3>
+		<p class="description">
+			<?php esc_html_e( '데이터를 변경하지 않고 글/댓글/첨부의 전체 건수, 카테고리 매핑 분포, 휴지통·미매핑 카테고리 카운트를 확인합니다. 매핑이 부족하면 inc/migration-map.php 의 inquiry_board_category_rules() 를 보강한 후 다시 실행하세요.', 'wp-qna-board' ); ?>
+		</p>
+		<div class="ibm-actions">
+			<button type="button" class="button button-secondary" id="ibm-dryrun-btn"><?php esc_html_e( 'Dry-run 실행', 'wp-qna-board' ); ?></button>
+		</div>
+		<div id="ibm-dryrun-panel" hidden>
+			<h4><?php esc_html_e( '요약', 'wp-qna-board' ); ?></h4>
+			<div id="ibm-dryrun-summary" class="ibm-dryrun-block"></div>
+			<h4><?php esc_html_e( '카테고리 매핑 분포', 'wp-qna-board' ); ?></h4>
+			<div id="ibm-dryrun-categories" class="ibm-dryrun-block"></div>
+		</div>
+	</div>
+
+	<div class="ibm-card">
+		<h3><?php esc_html_e( '2. 시작 전 확인', 'wp-qna-board' ); ?></h3>
+		<div class="ibm-warning">
+			<strong><?php esc_html_e( '필수', 'wp-qna-board' ); ?>:</strong>
+			<?php esc_html_e( '시작 전 DB 백업을 수행하세요. (예: SSH 에서', 'wp-qna-board' ); ?>
+			<code>wp db export ~/private_html/backup-pre-kboard-$(date +%Y%m%d-%H%M).sql.gz</code>
+			<?php esc_html_e( ') 마이그레이션은 idempotent 하므로 중간 취소 후 재시작해도 안전합니다 (이미 INSERT 된 글은 _legacy_kboard_uid 메타로 자동 skip).', 'wp-qna-board' ); ?>
+		</div>
+		<div class="ibm-row">
+			<label>
+				<input type="checkbox" id="ibm-backup-check">
+				<?php esc_html_e( 'DB 백업을 완료했고, 운영 데이터에 영향을 줄 수 있음을 이해합니다.', 'wp-qna-board' ); ?>
+			</label>
+		</div>
+		<div class="ibm-row">
+			<label for="ibm-batch"><?php esc_html_e( 'tick 당 batch 크기', 'wp-qna-board' ); ?></label>
+			<input type="number" id="ibm-batch" min="10" max="500" step="10" value="100" style="width:90px;">
+			<span class="description"><?php esc_html_e( '한 번의 폴링에서 처리할 행 수. 100 권장.', 'wp-qna-board' ); ?></span>
+		</div>
+	</div>
+
+	<div class="ibm-card">
+		<h3><?php esc_html_e( '3. 실행', 'wp-qna-board' ); ?></h3>
+		<div class="ibm-stage-row">
+			<span><?php esc_html_e( '상태:', 'wp-qna-board' ); ?></span>
+			<span id="ibm-status-badge" class="ibm-badge" data-status="idle"><?php esc_html_e( '대기', 'wp-qna-board' ); ?></span>
+			<span id="ibm-status-msg" class="description"></span>
+			<span><?php esc_html_e( '· 현재 단계:', 'wp-qna-board' ); ?> <strong id="ibm-stage-label">-</strong></span>
+		</div>
+
+		<div class="ibm-actions">
+			<button type="button" class="button button-primary" id="ibm-start-btn" disabled><?php esc_html_e( '마이그레이션 시작', 'wp-qna-board' ); ?></button>
+			<button type="button" class="button button-secondary" id="ibm-cancel-btn" disabled><?php esc_html_e( '취소', 'wp-qna-board' ); ?></button>
+			<button type="button" class="button button-secondary" id="ibm-reset-btn" disabled><?php esc_html_e( '상태 리셋', 'wp-qna-board' ); ?></button>
+		</div>
+
+		<div id="ibm-progress" style="display:none;margin-top:14px;">
+			<div class="ibm-progress-row">
+				<span class="ibm-progress-label"><?php esc_html_e( '글', 'wp-qna-board' ); ?></span>
+				<div class="ibm-progress-bar"><div class="ibm-progress-fill" id="ibm-bar-posts" role="progressbar">0 / 0</div></div>
+			</div>
+			<div class="ibm-progress-row">
+				<span class="ibm-progress-label"><?php esc_html_e( '첨부', 'wp-qna-board' ); ?></span>
+				<div class="ibm-progress-bar"><div class="ibm-progress-fill" id="ibm-bar-attachments" role="progressbar">0 / 0</div></div>
+			</div>
+			<div class="ibm-progress-row">
+				<span class="ibm-progress-label"><?php esc_html_e( '댓글', 'wp-qna-board' ); ?></span>
+				<div class="ibm-progress-bar"><div class="ibm-progress-fill" id="ibm-bar-comments" role="progressbar">0 / 0</div></div>
+			</div>
+
+			<div class="ibm-stats">
+				<div><span><?php esc_html_e( '글 inserted', 'wp-qna-board' ); ?></span><strong id="ibm-stat-posts-inserted">0</strong></div>
+				<div><span><?php esc_html_e( '글 skipped', 'wp-qna-board' ); ?></span><strong id="ibm-stat-posts-skipped">0</strong></div>
+				<div><span><?php esc_html_e( '글 trashed', 'wp-qna-board' ); ?></span><strong id="ibm-stat-posts-trashed">0</strong></div>
+				<div><span><?php esc_html_e( '첨부 ok', 'wp-qna-board' ); ?></span><strong id="ibm-stat-att-ok">0</strong></div>
+				<div><span><?php esc_html_e( '첨부 fail', 'wp-qna-board' ); ?></span><strong id="ibm-stat-att-fail">0</strong></div>
+				<div><span><?php esc_html_e( '댓글 inserted', 'wp-qna-board' ); ?></span><strong id="ibm-stat-cmt-inserted">0</strong></div>
+				<div><span><?php esc_html_e( '댓글 trashed', 'wp-qna-board' ); ?></span><strong id="ibm-stat-cmt-trashed">0</strong></div>
+				<div><span><?php esc_html_e( '에러 누적', 'wp-qna-board' ); ?></span><strong id="ibm-stat-errors" class="ibm-stat-errors">0</strong></div>
+			</div>
+
+			<h4 style="margin:14px 0 4px;"><?php esc_html_e( '최근 로그', 'wp-qna-board' ); ?></h4>
+			<div id="ibm-log" class="ibm-log"></div>
+			<h4 style="margin:14px 0 4px;"><?php esc_html_e( '최근 에러', 'wp-qna-board' ); ?></h4>
+			<div id="ibm-errors" class="ibm-errors"></div>
+		</div>
 	</div>
 	<?php
 }
