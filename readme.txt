@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.5.2
+Stable tag: 0.5.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,14 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.5.3 =
+* fix(button): primary CTA(글쓰기·등록 하기·수정 저장·답글 등록·확인) 톤을 indigo `#533afd` → **검정(deep ink) `#0f172a` fill + 흰 텍스트** 로 통일. ukuhak.com 에서 테마(Uncode) 의 `button[type=submit]` 글로벌 룰이 indigo bg 를 흰색에 가깝게 덮어써서 흰 텍스트가 안 보이던 문제 해결. hover `#1e293b`, active `#000000`.
+* fix(button): primary CTA selector specificity 를 `.inquiry-reply-submit.inquiry-reply-submit` 처럼 클래스 두 번 기재로 (0,2,0) 까지 올리고 핵심 속성(background, color, border, border-radius) 에 `!important` 부여하여 테마 override 방어. `box-shadow: none`, `text-shadow: none` 명시.
+* fix(reply-submit): 단일 페이지 「답글 등록」 의 라운드·hover 가 다른 primary CTA 와 달라 보이던 문제 해결. 동일 통합 selector 그룹에 묶어 hero 글쓰기 버튼과 시각·인터랙션 완전 일치.
+* fix(reply-submit hover): hover 시 텍스트 색이 흰색에서 안 보이게 변하던 문제 해결 — hover 룰에서 `color: var(--inq-primary-fg) !important` 명시. hover 시 -1px translateY + 부드러운 deep shadow 로 lift 피드백 추가.
+* feat(form): 글쓰기 폼의 「이름 / 이메일 / 글 비밀번호」 입력 행을 **데스크탑 3-column / 모바일(≤768px) 1-column** grid 로 묶음. `templates/inquiry-form.php` 에 `<div class="inquiry-form-grid inquiry-form-grid--3col">` wrapper 추가, CSS 에 `.inquiry-form-grid--2col` / `.inquiry-form-grid--3col` 토큰 추가. 비밀번호 안내문은 grid 바깥의 `.inquiry-form-help` 단락으로 분리.
+* hero 글쓰기 버튼(`.inquiry-write-btn--lg`) 사이즈: padding 12/32 → 14/36, min-height 44 → 48 로 hero 급으로 키움. 색·라디우스는 통합 selector 가 담당.
 
 = 0.5.2 =
 * 글쓰기 / 수정 폼의 가로 폭을 목록 페이지(`.inquiry-board-list`) 와 동일한 컨테이너 100% 로 변경 (v0.5.0 까지 적용된 75% 제한 해제). ukuhak.com 피드백 반영. 단일 페이지(`.inquiry-single-wrap`) 는 기존대로 75% 유지.

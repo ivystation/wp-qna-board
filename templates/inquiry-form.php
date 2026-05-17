@@ -57,20 +57,24 @@ $form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts[
 		</select>
 	</p>
 
-	<p>
-		<label for="inq_author"><?php esc_html_e( '이름', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
-		<input type="text" id="inq_author" name="inquiry_author" required maxlength="50">
-	</p>
+	<div class="inquiry-form-grid inquiry-form-grid--3col">
+		<p>
+			<label for="inq_author"><?php esc_html_e( '이름', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
+			<input type="text" id="inq_author" name="inquiry_author" required maxlength="50">
+		</p>
 
-	<p>
-		<label for="inq_email"><?php esc_html_e( '이메일', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
-		<input type="email" id="inq_email" name="inquiry_email" required>
-	</p>
+		<p>
+			<label for="inq_email"><?php esc_html_e( '이메일', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
+			<input type="email" id="inq_email" name="inquiry_email" required>
+		</p>
 
-	<p>
-		<label for="inq_password"><?php esc_html_e( '글 비밀번호', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
-		<input type="password" id="inq_password" name="inquiry_password" required minlength="<?php echo (int) $opts['password_min_length']; ?>">
-		<br><small><?php esc_html_e( '본인 글 열람·수정·댓글에 사용됩니다. 작성 직후 24시간 동안은 같은 브라우저에서 비번 입력 없이 이용할 수 있습니다.', 'wp-qna-board' ); ?></small>
+		<p>
+			<label for="inq_password"><?php esc_html_e( '글 비밀번호', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
+			<input type="password" id="inq_password" name="inquiry_password" required minlength="<?php echo (int) $opts['password_min_length']; ?>">
+		</p>
+	</div>
+	<p class="inquiry-form-help">
+		<small><?php esc_html_e( '비밀번호는 본인 글 열람·수정·댓글에 사용됩니다. 작성 직후 24시간 동안은 같은 브라우저에서 비번 입력 없이 이용할 수 있습니다.', 'wp-qna-board' ); ?></small>
 	</p>
 
 	<p>
