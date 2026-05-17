@@ -25,13 +25,13 @@ function inquiry_board_register_cpt(): void {
 	register_post_type( 'inquiry', [
 		'labels'              => $labels,
 		'public'              => true,
-		'has_archive'         => true,
+		'has_archive'         => false, // /inquiries/ 는 별도 페이지가 차지한다.
 		'show_in_rest'        => true,
 		'rest_base'           => 'inquiry',
 		'menu_icon'           => 'dashicons-format-chat',
 		'menu_position'       => 22,
 		'supports'            => [ 'title', 'editor', 'custom-fields', 'comments', 'author' ],
-		'rewrite'             => [ 'slug' => 'inquiry', 'with_front' => false ],
+		'rewrite'             => [ 'slug' => 'inquiries', 'with_front' => false ],
 		'capability_type'     => [ 'inquiry', 'inquiries' ],
 		'map_meta_cap'        => true,
 		'hierarchical'        => false,
