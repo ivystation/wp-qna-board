@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.3.0
+Stable tag: 0.4.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,13 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.4.0 =
+* 대시보드 메뉴 개편: Settings → Q&A 게시판을 Q&A게시판 → 설정 으로 이동 (add_submenu_page).
+* 설정 페이지 3탭 구조 도입: 일반설정 / 마이그레이션 / 사용방법.
+* 일반설정에 페이지당 게시물 수(posts_per_page) 옵션 추가. 숏코드 속성 미지정 시 옵션값 사용.
+* 마이그레이션 탭: KBoard 활성 (게시판 자동 감지 + 옵션 폼 + WP-CLI 명령 자동 생성), MangBoard / XE·Rhymix / Gravity Forms 는 준비중.
+* 사용방법 탭: 단축코드·카테고리·세션·관리자 답변·CLI·바로가기 안내.
 
 = 0.3.0 =
 * GitHub Releases 기반 플러그인 자동 업데이트 추가 (ivystation/wp-qna-board).
