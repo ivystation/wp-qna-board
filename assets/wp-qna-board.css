@@ -1,0 +1,63 @@
+/* Minimal default styles for wp-qna-board. 테마에 맞게 자유롭게 오버라이드 가능. */
+
+.inquiry-form p,
+.inquiry-edit-form p,
+.inquiry-password-form p {
+	margin: 1em 0;
+}
+
+.inquiry-form label,
+.inquiry-edit-form label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 0.25em;
+}
+
+.inquiry-form input[type="text"],
+.inquiry-form input[type="email"],
+.inquiry-form input[type="password"],
+.inquiry-form select,
+.inquiry-form textarea,
+.inquiry-edit-form input[type="text"],
+.inquiry-edit-form input[type="password"],
+.inquiry-edit-form select,
+.inquiry-edit-form textarea {
+	width: 100%;
+	padding: 0.5em;
+	box-sizing: border-box;
+}
+
+.inquiry-form small,
+.inquiry-edit-form small {
+	color: #666;
+}
+
+.inquiry-list {
+	width: 100%;
+	border-collapse: collapse;
+}
+.inquiry-list th,
+.inquiry-list td {
+	padding: 0.5em 0.75em;
+	border-bottom: 1px solid #eee;
+	text-align: left;
+}
+
+.entry-meta .locked {
+	color: #b35;
+}
+
+.inquiry-attachments {
+	margin: 1em 0;
+	padding: 0.5em 1em;
+	background: #f7f7f7;
+	list-style: square inside;
+}
+
+.comment .says::after {
+	content: "";
+}
+.comment[data-admin-reply="1"] .comment-body {
+	background: #fffbe7;
+	padding: 0.5em;
+}
