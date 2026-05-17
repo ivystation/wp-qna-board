@@ -147,7 +147,7 @@ class Inquiry_Board_Migrate_Command {
 				$post_id = wp_insert_post( [
 					'post_type'         => 'inquiry',
 					'post_status'       => $post_status,
-					'post_author'       => 0,
+					'post_author'       => inquiry_board_anon_author_id(),
 					'post_title'        => (string) ( $r['title'] ?? '' ),
 					'post_content'      => $body_clean,
 					'post_password'     => $password,

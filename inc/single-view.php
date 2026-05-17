@@ -11,6 +11,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * inquiry 글의 작성자 표시명을 익명 작성자 이름(_inquiry_author_name) 으로 치환.
+ * post_author 자체는 administrator user id 가 박혀 있지만 화면 표시는 익명 이름으로.
+ */
+add_filter( 'the_author',         'inquiry_board_filter_author_name' );
+add_filter( 'get_the_author',     'inquiry_board_filter_author_name' );
+add_filter( 'the_author_meta',    'inquiry_board_filter_author_meta', 10, 3 );
+
+function inquiry_board_filter_author_name( $name ) {
+	$pid = get_the_ID();
+	if ( ! $pid ) {
+		return $name;
+	}
+	$post = get_post( $pid );
+	if ( ! $post || $post->post_type !== 'inquiry' ) {
+		return $name;
+	}
+	$meta = (string) get_post_meta( $pid, '_inquiry_author_name', true );
+	return $meta !== '' ? $meta : $name;
+}
+
+function inquiry_board_filter_author_meta( $value, $field, $user_id ) {
+	if ( ! in_array( $field, [ 'display_name', 'nickname', 'first_name', 'user_nicename' ], true ) ) {
+		return $value;
+	}
+	$pid = get_the_ID();
+	if ( ! $pid ) {
+		return $value;
+	}
+	$post = get_post( $pid );
+	if ( ! $post || $post->post_type !== 'inquiry' ) {
+		return $value;
+	}
+	$meta = (string) get_post_meta( $pid, '_inquiry_author_name', true );
+	return $meta !== '' ? $meta : $value;
+}
+
 add_filter( 'the_content', 'inquiry_board_decorate_content', 20 );
 
 function inquiry_board_decorate_content( string $content ): string {

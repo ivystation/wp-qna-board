@@ -87,7 +87,7 @@ function inquiry_board_handle_submit(): void {
 	$post_id = wp_insert_post( [
 		'post_type'     => 'inquiry',
 		'post_status'   => 'publish',
-		'post_author'   => 0,
+		'post_author'   => inquiry_board_anon_author_id(),
 		'post_title'    => $title,
 		'post_content'  => $body_clean,
 		'post_password' => $password,
@@ -231,4 +231,43 @@ function inquiry_board_form_die( string $message ): void {
 		__( '문의 작성 실패', 'wp-qna-board' ),
 		[ 'back_link' => true, 'response' => 400 ]
 	);
+}
+
+/**
+ * 익명 inquiry 글의 post_author 로 박을 site administrator user id.
+ *
+ * 일부 테마(single.php 안의 author 처리)는 post_author 가 0 이면 get_userdata(0)
+ * 가 false 를 반환해 PHP 8 호환성 fatal 을 일으킨다. 그래서 익명이라도
+ * wp_posts.post_author 자체는 유효 administrator id 로 두고, 화면에 표시되는
+ * 작성자명은 _inquiry_author_name 메타로 the_author 필터에서 치환한다.
+ *
+ * 결정 우선순위:
+ *  1) get_option('inquiry_board_anon_author') 가 유효 사용자면 사용
+ *  2) admin_email 에 해당하는 administrator
+ *  3) ID 오름차순 첫 administrator
+ */
+function inquiry_board_anon_author_id(): int {
+	static $cached = null;
+	if ( $cached !== null ) {
+		return (int) $cached;
+	}
+	$opt = (int) get_option( 'inquiry_board_anon_author', 0 );
+	if ( $opt > 0 && get_userdata( $opt ) ) {
+		return $cached = $opt;
+	}
+	$email = (string) get_option( 'admin_email' );
+	if ( $email ) {
+		$u = get_user_by( 'email', $email );
+		if ( $u && user_can( $u, 'manage_options' ) ) {
+			return $cached = (int) $u->ID;
+		}
+	}
+	$users = get_users( [
+		'role'    => 'administrator',
+		'number'  => 1,
+		'orderby' => 'ID',
+		'order'   => 'ASC',
+		'fields'  => 'ID',
+	] );
+	return $cached = ! empty( $users ) ? (int) $users[0] : 0;
 }
