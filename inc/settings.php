@@ -39,6 +39,7 @@ function inquiry_board_settings_defaults(): array {
 		'notify_email'         => '',
 		'password_min_length'  => 4,
 		'password_required'    => 1,
+		'github_token'         => '',
 	];
 }
 
@@ -58,6 +59,12 @@ function inquiry_board_settings_sanitize( $raw ): array {
 	$out['notify_email']        = sanitize_email( (string) ( $raw['notify_email'] ?? '' ) );
 	$out['password_min_length'] = max( 1, (int) ( $raw['password_min_length'] ?? 4 ) );
 	$out['password_required']   = ! empty( $raw['password_required'] ) ? 1 : 0;
+	$out['github_token']        = sanitize_text_field( (string) ( $raw['github_token'] ?? '' ) );
+
+	// 토큰이 바뀌면 GitHub 캐시를 즉시 폐기.
+	if ( function_exists( 'delete_site_transient' ) ) {
+		delete_site_transient( 'inquiry_board_gh_release' );
+	}
 	return $out;
 }
 
@@ -107,6 +114,23 @@ function inquiry_board_settings_page(): void {
 				<tr>
 					<th scope="row"><?php esc_html_e( '비밀번호 필수 여부', 'wp-qna-board' ); ?></th>
 					<td><label><input type="checkbox" name="inquiry_board_settings[password_required]" value="1" <?php checked( ! empty( $opts['password_required'] ) ); ?>> <?php esc_html_e( '필수로 받기 (권장)', 'wp-qna-board' ); ?></label></td>
+				</tr>
+				<tr>
+					<th colspan="2"><h2><?php esc_html_e( '자동 업데이트 (GitHub)', 'wp-qna-board' ); ?></h2></th>
+				</tr>
+				<tr>
+					<th scope="row"><label for="ibs_gh_token"><?php esc_html_e( 'GitHub Token (선택)', 'wp-qna-board' ); ?></label></th>
+					<td>
+						<?php $has_const = defined( 'INQUIRY_BOARD_GH_TOKEN' ) && INQUIRY_BOARD_GH_TOKEN; ?>
+						<input type="password" id="ibs_gh_token" name="inquiry_board_settings[github_token]" class="regular-text" value="<?php echo esc_attr( $opts['github_token'] ); ?>" autocomplete="off" <?php disabled( $has_const ); ?>>
+						<br>
+						<small>
+							<?php esc_html_e( 'Public 저장소(ivystation/wp-qna-board)는 토큰 없이도 동작. 비공개 저장소나 API 율 제한 회피용으로만 입력. wp-config.php 에 INQUIRY_BOARD_GH_TOKEN 정의 시 그 값이 우선.', 'wp-qna-board' ); ?>
+						</small>
+						<p>
+							<a class="button button-secondary" href="<?php echo esc_url( add_query_arg( 'inquiry-board-flush-update', '1', admin_url( 'plugins.php' ) ) ); ?>"><?php esc_html_e( '업데이트 캐시 강제 갱신', 'wp-qna-board' ); ?></a>
+						</p>
+					</td>
 				</tr>
 			</table>
 			<?php submit_button(); ?>

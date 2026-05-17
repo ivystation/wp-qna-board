@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.1.0
+Stable tag: 0.3.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,13 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.3.0 =
+* GitHub Releases 기반 플러그인 자동 업데이트 추가 (ivystation/wp-qna-board).
+* 설정 페이지에 GitHub Token 필드 및 업데이트 캐시 강제 갱신 버튼 추가.
+
+= 0.2.0 =
+* 비밀번호 보호 / 첨부 / 본인 세션 / 관리자 답변 통합 안정화 릴리스.
 
 = 0.1.0 =
 * 최초 릴리스.

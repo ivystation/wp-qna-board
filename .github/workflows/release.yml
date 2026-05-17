@@ -1,0 +1,52 @@
+name: Release plugin zip
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Determine version
+        id: ver
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Build plugin zip
+        run: |
+          SLUG=wp-qna-board
+          STAGE="/tmp/${SLUG}"
+          rm -rf "${STAGE}" && mkdir -p "${STAGE}"
+          # 플러그인 본체만 추려서 슬러그 폴더에 복사 (WP 업그레이더 호환을 위해 slug 폴더 구조 유지).
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.gitignore' \
+            --exclude='.DS_Store' \
+            --exclude='docs' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            --exclude='*.zip' \
+            ./ "${STAGE}/"
+          cd /tmp
+          zip -r "${SLUG}.zip" "${SLUG}"
+          mv "${SLUG}.zip" "${GITHUB_WORKSPACE}/${SLUG}.zip"
+
+      - name: Create / update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          generate_release_notes: true
+          files: wp-qna-board.zip
