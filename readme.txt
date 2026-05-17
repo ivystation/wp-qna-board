@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.4.12
+Stable tag: 0.5.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,20 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.5.0 =
+* DESIGN.md(Stripe 디자인 시스템) 적용 — 플러그인 전 화면(목록 / 단일 / 글쓰기 / 수정 / 비밀번호 / 답변 스레드) UI 를 indigo CTA + deep navy ink + Inter 300 + pill 버튼 + hairline 카드 톤으로 재구성.
+* color tokens: amber primary(`#fbbf24`) → indigo `#533afd` (`--inq-primary`), hover `#4434d4` (`--inq-primary-deep`), pressed `#2e2b8c` (`--inq-primary-press`). 본문 텍스트는 deep navy `#0d253d` (`--inq-ink`). 보더는 hairline `#e3e8ee` (`--inq-hairline`), 입력 보더는 `#a8c3de` (`--inq-hairline-input`). 그라데이션 스톱(cream/orange/lavender/indigo/magenta)을 토큰화.
+* shape: 모든 버튼은 pill (`--inq-radius-pill: 9999px`). DESIGN.md "Don't shrink button padding below 8px 16px" 준수. 카드·테이블 컨테이너는 rounded-lg(12px) + Level 1 shadow `0 1px 3px rgba(0,55,112,.08)`.
+* typography: Inter 300/400 을 Google Fonts 로 enqueue (`wp-qna-board-inter`). `font-feature-settings: "ss01"` 전역, 숫자 셀(번호·날짜·페이지·카운트 뱃지)에는 추가로 `tnum`. display tier 는 weight 300 + negative letter-spacing.
+* hero mesh backdrop: 목록 페이지(`.inquiry-board-list`) 상단에 cream/orange/lavender/indigo/magenta 5-stop radial-gradient 를 CSS 로 근사 출력하여 DESIGN.md 시그니처 mesh 분위기 부여 (blur + saturate).
+* 관리자 답변 메시지: DESIGN.md `card-pricing-featured` 톤(`--inq-brand-dark: #1c1e54` fill + 흰 텍스트 + Level 2 shadow) 으로 featured tier 처럼 표시.
+* role 배지: pill 형태. admin 은 filled indigo, owner 는 subdued indigo(`--inq-primary-subdued: #b9b9f9` + `--inq-primary-deep`).
+* 파일 첨부 칩: 회색 박스 → `pill-tag-soft` 톤(subdued indigo) pill 칩.
+* 비번 입력 폼(`.inquiry-password-form`): bare → card 형 (canvas + hairline + rounded-lg + Level 1 shadow + indigo pill 「확인」 버튼).
+* 삭제 폼: ruby outline pill 로 destructive 의미 부여, hover 시 ruby fill.
+* preconnect: fonts.googleapis.com / fonts.gstatic.com 에 `<link rel="preconnect">` 헤더 추가 (Inter 첫 paint 지연 최소화).
+* version 상수 동기화: `INQUIRY_BOARD_VERSION` 도 `0.5.0`. (이전 v0.4.12 에서는 plugin header 만 0.4.12 였고 상수는 0.4.10 에 머물러 있어 `wp_enqueue_*` 의 cache buster 가 갱신되지 않던 버그도 함께 해소.)
 
 = 0.4.12 =
 * design tokens: 전역 CSS 변수 도입. `assets/wp-qna-board.css` 최상단 `:where(...)` 블록에 `--inq-bg`, `--inq-text`, `--inq-border`, `--inq-primary-bg`, `--inq-secondary-*`, `--inq-radius-*`, `--inq-font-*`, `--inq-gap-*` 등 색·라디우스·폰트·간격을 토큰화. specificity 0 으로 노출해 테마/자식 테마에서 단순 오버라이드 가능. 후속 패치(v0.4.13 예정) 에서 관리자 설정 페이지의 color picker 가 이 값을 동적으로 덮어쓰도록 wp_head 인라인 `:root` 블록을 출력할 예정.

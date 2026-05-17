@@ -4,7 +4,7 @@
  * Plugin URI:        https://github.com/ivystation/wp-qna-board
  * Description:       비회원 작성 가능한 Q&A 게시판. CPT(inquiry) + 비밀번호 보호 + IP·쿠키 24시간 본인 세션 + 관리자 답변 댓글. KBoard 마이그레이션 WP-CLI 포함. GitHub Releases 자동 업데이트 지원.
  * Update URI:        https://github.com/ivystation/wp-qna-board
- * Version:           0.4.12
+ * Version:           0.5.0
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            ivynet
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'INQUIRY_BOARD_VERSION', '0.4.10' );
+define( 'INQUIRY_BOARD_VERSION', '0.5.0' );
 define( 'INQUIRY_BOARD_FILE', __FILE__ );
 define( 'INQUIRY_BOARD_DIR', plugin_dir_path( __FILE__ ) );
 define( 'INQUIRY_BOARD_URL', plugin_dir_url( __FILE__ ) );
@@ -118,10 +118,26 @@ add_action( 'init', 'inquiry_board_register_taxonomy' );
 
 add_action( 'wp_enqueue_scripts', static function (): void {
 	if ( is_singular( 'inquiry' ) || is_post_type_archive( 'inquiry' ) || is_page() ) {
-		wp_enqueue_style( 'wp-qna-board', INQUIRY_BOARD_URL . 'assets/wp-qna-board.css', [], INQUIRY_BOARD_VERSION );
+		// DESIGN.md 의 typographic signature(thin 300 + ss01) 를 위한 Inter 로드.
+		// Sohne 가 proprietary 이므로 open-source 대체로 Inter 를 사용한다.
+		wp_enqueue_style(
+			'wp-qna-board-inter',
+			'https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap',
+			[],
+			null
+		);
+		wp_enqueue_style( 'wp-qna-board', INQUIRY_BOARD_URL . 'assets/wp-qna-board.css', [ 'wp-qna-board-inter' ], INQUIRY_BOARD_VERSION );
 		wp_enqueue_script( 'wp-qna-board', INQUIRY_BOARD_URL . 'assets/wp-qna-board.js', [], INQUIRY_BOARD_VERSION, true );
 	}
 } );
+
+// fonts.googleapis.com / fonts.gstatic.com preconnect — Inter 첫 paint 지연 최소화.
+add_action( 'wp_head', static function (): void {
+	if ( is_singular( 'inquiry' ) || is_post_type_archive( 'inquiry' ) || is_page() ) {
+		echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
+		echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
+	}
+}, 1 );
 
 /**
  * 본문 짧은 텍스트 본문 정제 헬퍼는 form.php 에서 정의된 inquiry_board_sanitize_body() 를 사용.
