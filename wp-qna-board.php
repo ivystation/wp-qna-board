@@ -32,6 +32,14 @@ require_once INQUIRY_BOARD_DIR . 'inc/comments.php';
 require_once INQUIRY_BOARD_DIR . 'inc/redirect.php';
 require_once INQUIRY_BOARD_DIR . 'inc/settings.php';
 
+// 테마별 호환 모듈: Uncode 또는 그 자식이 활성일 때만 로드.
+add_action( 'after_setup_theme', static function (): void {
+	$theme = wp_get_theme();
+	if ( $theme && ( $theme->get_template() === 'uncode' || $theme->get_stylesheet() === 'uncode' ) ) {
+		require_once INQUIRY_BOARD_DIR . 'inc/theme-uncode.php';
+	}
+} );
+
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once INQUIRY_BOARD_DIR . 'inc/migration-map.php';
 	require_once INQUIRY_BOARD_DIR . 'inc/migration.php';

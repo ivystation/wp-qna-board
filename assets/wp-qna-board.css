@@ -76,3 +76,23 @@
 	background: #fffbe7;
 	padding: 0.5em;
 }
+
+/* ---------------------------------------------------------------------------
+   inquiry CPT 단일 페이지 레이아웃 보정 (현재 적용 테마: Uncode)
+   - 하단 관련·최신 포스트 섹션 숨김
+   - Hero 헤더와 본문 시작 사이 여백 확보
+   ------------------------------------------------------------------------- */
+body.single-inquiry .related-article,
+body.single-inquiry .recent-article {
+	display: none !important;
+}
+
+body.single-inquiry .post-content {
+	padding-top: 60px;
+}
+
+@media (max-width: 768px) {
+	body.single-inquiry .post-content {
+		padding-top: 32px;
+	}
+}
