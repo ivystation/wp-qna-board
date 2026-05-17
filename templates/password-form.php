@@ -13,11 +13,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 $post_id = (int) ( $inquiry_post_id ?? get_the_ID() );
 ?>
-<form class="inquiry-password-form" method="post"
-      action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-	<input type="hidden" name="action" value="inquiry_unlock">
-	<input type="hidden" name="inquiry_post_id" value="<?php echo (int) $post_id; ?>">
-	<?php wp_nonce_field( 'inquiry_board_unlock', 'inquiry_board_unlock_nonce' ); ?>
+<form class="inquiry-password-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+	<div class="ipf-hidden">
+		<input type="hidden" name="action" value="inquiry_unlock">
+		<input type="hidden" name="inquiry_post_id" value="<?php echo (int) $post_id; ?>">
+		<?php wp_nonce_field( 'inquiry_board_unlock', 'inquiry_board_unlock_nonce' ); ?>
+	</div>
 	<div class="ipf-msg"><?php esc_html_e( '이 글은 비밀번호로 보호되어 있습니다. 작성자 본인이거나 비밀번호를 알고 있는 경우 입력해 주세요.', 'wp-qna-board' ); ?></div>
 	<div class="ipf-field">
 		<label><?php esc_html_e( '비밀번호', 'wp-qna-board' ); ?>
