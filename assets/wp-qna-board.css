@@ -2,8 +2,23 @@
 
 .inquiry-form p,
 .inquiry-edit-form p,
-.inquiry-password-form p {
+.inquiry-password-form p,
+.inquiry-password-form .ipf-msg,
+.inquiry-password-form .ipf-field,
+.inquiry-password-form .ipf-help {
 	margin: 1em 0;
+}
+
+.inquiry-password-form .ipf-field label {
+	display: inline-block;
+	margin-right: 0.5em;
+}
+.inquiry-password-form .ipf-field input[type="password"] {
+	padding: 0.4em 0.6em;
+	margin: 0 0.5em;
+}
+.inquiry-password-form .ipf-help small {
+	color: #666;
 }
 
 .inquiry-form label,
