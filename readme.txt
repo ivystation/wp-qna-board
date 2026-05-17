@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.4.3
+Stable tag: 0.4.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,10 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.4.4 =
+* settings: 일반설정 탭에 "레거시 URL 처리" 섹션 추가. 체크박스 `legacy_redirect_enabled` (기본값 off) 로 KBoard 등 레거시 URL(`?mod=document&uid=NNN`)을 마이그레이션된 새 inquiry 글로 301 리다이렉트할지 선택.
+* redirect: `inc/redirect.php` 의 `inquiry_board_legacy_redirect()` 시작부에 옵션 가드 추가. 비활성이면 즉시 return 하여 원본 게시판 글을 그대로 노출. SEO 보존 vs 원본/신규 병행 운영 양쪽 사용 사례를 지원.
 
 = 0.4.3 =
 * admin runner: KBoard 마이그레이션을 [Q&A 게시판 → 설정 → 마이그레이션] 화면에서 직접 실행. AJAX 폴링(1.5초)으로 단계별 진행률 바·통계·최근 로그·최근 에러 실시간 갱신.

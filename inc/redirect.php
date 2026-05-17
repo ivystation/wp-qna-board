@@ -7,6 +7,9 @@
  *   - 쿼리: ?uid=12345 (KBoard 게시판 페이지 안에서)
  *   - 쿼리: ?pageid=...&uid=12345
  * 매핑은 새 inquiry post 의 postmeta `_legacy_kboard_uid` 로 검색.
+ *
+ * 일반 설정의 `legacy_redirect_enabled` 옵션이 켜진 경우에만 동작한다.
+ * 기본값은 off — 원본 게시판과 새 게시판을 병행 운영할 수 있도록 한다.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -17,6 +20,13 @@ add_action( 'template_redirect', 'inquiry_board_legacy_redirect' );
 
 function inquiry_board_legacy_redirect(): void {
 	if ( is_admin() || ! isset( $_GET['uid'] ) ) {
+		return;
+	}
+	if ( ! function_exists( 'inquiry_board_get_settings' ) ) {
+		return;
+	}
+	$opts = inquiry_board_get_settings();
+	if ( empty( $opts['legacy_redirect_enabled'] ) ) {
 		return;
 	}
 	$uid = (int) $_GET['uid'];

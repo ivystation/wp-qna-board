@@ -112,6 +112,7 @@ function inquiry_board_settings_defaults(): array {
 		'password_min_length'  => 4,
 		'password_required'    => 1,
 		'github_token'         => '',
+		'legacy_redirect_enabled' => 0,
 	];
 }
 
@@ -142,6 +143,7 @@ function inquiry_board_settings_sanitize( $raw ): array {
 	$out['password_min_length'] = max( 1, (int) ( $raw['password_min_length'] ?? 4 ) );
 	$out['password_required']   = ! empty( $raw['password_required'] ) ? 1 : 0;
 	$out['github_token']        = sanitize_text_field( (string) ( $raw['github_token'] ?? '' ) );
+	$out['legacy_redirect_enabled'] = ! empty( $raw['legacy_redirect_enabled'] ) ? 1 : 0;
 
 	// 토큰이 바뀌면 GitHub 캐시를 즉시 폐기.
 	if ( function_exists( 'delete_site_transient' ) ) {
@@ -296,6 +298,22 @@ function inquiry_board_settings_render_general(): void {
 			<tr>
 				<th scope="row"><label for="ibs_score"><?php esc_html_e( '최소 점수 (0.0~1.0)', 'wp-qna-board' ); ?></label></th>
 				<td><input type="number" step="0.1" min="0" max="1" id="ibs_score" name="inquiry_board_settings[recaptcha_min_score]" value="<?php echo esc_attr( (string) $opts['recaptcha_min_score'] ); ?>"></td>
+			</tr>
+
+			<tr>
+				<th colspan="2"><h2 class="title"><?php esc_html_e( '레거시 URL 처리', 'wp-qna-board' ); ?></h2></th>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( '레거시 URL → 새 글 자동 리다이렉트', 'wp-qna-board' ); ?></th>
+				<td>
+					<label>
+						<input type="checkbox" name="inquiry_board_settings[legacy_redirect_enabled]" value="1" <?php checked( ! empty( $opts['legacy_redirect_enabled'] ) ); ?>>
+						<?php esc_html_e( '활성화 (KBoard 등 레거시 URL을 마이그레이션된 새 글로 301 리다이렉트)', 'wp-qna-board' ); ?>
+					</label>
+					<p class="description">
+						<?php esc_html_e( '인식 패턴: ?mod=document&uid=NNN / ?uid=NNN. 끄면 원본 게시판 글이 그대로 노출됩니다. SEO 보존 목적이라면 켜두고, 원본·신규 게시판을 병행 운영하려면 끄세요. (기본: 끄기)', 'wp-qna-board' ); ?>
+					</p>
+				</td>
 			</tr>
 
 			<tr>
