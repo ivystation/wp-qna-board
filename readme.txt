@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.4.9
+Stable tag: 0.4.10
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,9 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.4.10 =
+* fix(list): 페이지네이션 클릭 시 404 발생 수정. `paginate_links()` 가 `?paged=N` 으로 URL 을 생성하면 WP `redirect_canonical` 이 일반 page(쇼트코드를 박아 둔 페이지) 에서 자동으로 `/page/N/` 로 301 redirect 하는데, 해당 page 에는 `<!--nextpage-->` 분할이 없어 404 가 떴다. 자체 쿼리 변수 `?inq_paged=N` 으로 base 를 변경(템플릿이 이미 `$_GET['inq_paged']` 를 수신). canonical redirect 가 발동하지 않으면서 본문 쿼리가 정상 동작.
 
 = 0.4.9 =
 * list: 목록 페이지(`[inquiry_form]` view=list) 스타일을 단일 페이지 톤으로 통일. 테이블 `.inquiry-list` 에 둥근 모서리(`border-radius: 10px` + `overflow: hidden`), thead 진한 띠(`#f1f5f9` 배경 + `#0f172a` 진한 글자 + 하단 보더), 행 hover `#f8fafc`.

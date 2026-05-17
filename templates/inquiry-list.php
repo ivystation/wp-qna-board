@@ -109,7 +109,10 @@ $write_url = add_query_arg( 'ipv', 'write', $base_url );
 		$total_pages = (int) $list->max_num_pages;
 		if ( $total_pages > 1 ) :
 			$pagination = paginate_links( [
-				'base'      => add_query_arg( 'paged', '%#%', $base_url ),
+				// `?paged=N` 을 쓰면 WP redirect_canonical 이 일반 page 에서 자동으로
+				// `/page/N/` 으로 301 → 페이지 분할이 없어 404. 자체 쿼리 변수 `inq_paged`
+				// 를 사용하면 canonical redirect 가 발동하지 않으면서 본문 쿼리가 정상 동작.
+				'base'      => add_query_arg( 'inq_paged', '%#%', $base_url ),
 				'format'    => '',
 				'current'   => $paged,
 				'total'     => $total_pages,
