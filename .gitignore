@@ -22,3 +22,6 @@ package-lock.json
 .env
 .env.local
 *.log
+
+# 외부 디자인 참고 자료 — wp-qna-board 본체와 무관. 별도 폴더(`~/workspace/design-refs/`) 에 보관.
+/DESIGN.md
