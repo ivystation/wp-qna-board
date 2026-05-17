@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.4.6
+Stable tag: 0.4.7
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,9 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.4.7 =
+* style: inquiry 단일 페이지 상단 타이틀(`body.single-inquiry .post-title-wrapper`) 도 본문 래퍼(`.inquiry-single-wrap`) 와 동일하게 75% 폭(모바일 100%) 으로 정렬. 상단부터 본문까지 일관된 컨테이너 폭 유지.
 
 = 0.4.6 =
 * single: 본문 상단에 "← 목록으로" 링크 추가. 쇼트코드 `[inquiry_form]` 이 박힌 publish 페이지를 자동 탐지(`inquiry_board_get_list_page_url()`)하여 그 URL 로 이동. 6시간 transient 캐시 + `save_post_page` / `delete_post` 훅으로 무효화. 옵션 `inquiry_board_list_page_id` 로 수동 override 가능.
