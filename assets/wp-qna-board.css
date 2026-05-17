@@ -1,4 +1,123 @@
+/* ==========================================================================
+   wp-qna-board 디자인 토큰 (전역 설정)
+   ──────────────────────────────────────────────────────────────────────────
+   wp-qna-board 의 모든 화면(목록 / 단일 / 글쓰기 / 수정 / 비밀번호)이
+   참조하는 색·라디우스·폰트·간격을 여기 한 곳에서 관리한다.
+   톤을 바꾸려면 이 :where(...) 블록의 값만 수정하면 전 화면에 반영된다.
+
+   - :where() 로 specificity 0 → 테마/자식 테마의 규칙이 손쉽게 오버라이드 가능.
+   - 후속 패치(v0.4.13 예정)에서 관리자 설정 페이지의 color picker 가
+     이 값을 동적으로 덮어쓰도록 wp_head 에서 인라인 :root 블록을 출력하면
+     코드 변경 없이 사이트별로 톤을 조정할 수 있다.
+   ========================================================================== */
+:where(
+	.inquiry-archive,
+	.inquiry-board-list,
+	.inquiry-single,
+	.inquiry-single-wrap,
+	.inquiry-form,
+	.inquiry-edit-form,
+	.inquiry-form-header,
+	.inquiry-form-wrap,
+	.inquiry-password-form,
+	body.single-inquiry,
+	#inquiry-thread
+) {
+	/* surface */
+	--inq-bg: #ffffff;
+	--inq-bg-alt: #f1f5f9;
+	--inq-bg-hover: #f8fafc;
+	--inq-bg-admin: #eff6ff;
+	--inq-bg-admin-strong: #dbeafe;
+
+	/* border */
+	--inq-border: #e2e8f0;
+	--inq-border-strong: #cbd5e1;
+	--inq-border-admin: #98bce8;
+
+	/* text */
+	--inq-text: #0f172a;
+	--inq-text-muted: #475569;
+	--inq-text-soft: #64748b;
+	--inq-text-help: #666;
+
+	/* secondary action (흰 박스 톤 — 「← 목록으로」 / 「해결됨으로 표시」 / 하단 작은 글쓰기) */
+	--inq-secondary-bg: var(--inq-bg);
+	--inq-secondary-bg-hover: var(--inq-bg-admin);
+	--inq-secondary-fg: var(--inq-text);
+	--inq-secondary-border: var(--inq-border);
+	--inq-secondary-border-hover: var(--inq-border-admin);
+
+	/* primary action (amber — 큰 글쓰기 / 답글 등록 / 등록 하기) */
+	--inq-primary-bg: #fbbf24;
+	--inq-primary-bg-hover: #f59e0b;
+	--inq-primary-bg-active: #d97706;
+	--inq-primary-fg: #ffffff;
+	--inq-primary-border: #fbbf24;
+	--inq-primary-border-hover: #f59e0b;
+	--inq-primary-shadow: 0 6px 16px rgba(245, 158, 11, .22);
+
+	/* accent (댓글 카운트 뱃지, 관리자 배지 등) */
+	--inq-accent: #1d4ed8;
+	--inq-success: #059669;
+
+	/* input */
+	--inq-input-bg: var(--inq-bg);
+	--inq-input-border: var(--inq-border-strong);
+	--inq-input-border-focus: var(--inq-border-admin);
+	--inq-input-fg: var(--inq-text);
+	--inq-input-placeholder: var(--inq-text-soft);
+
+	/* radii */
+	--inq-radius-xs: 4px;
+	--inq-radius-sm: 8px;
+	--inq-radius-md: 10px;
+	--inq-radius-lg: 12px;
+	--inq-radius-pill: 999px;
+
+	/* font sizes */
+	--inq-font-xs: 11px;
+	--inq-font-sm: 12px;
+	--inq-font-base: 13px;
+	--inq-font-md: 14px;
+	--inq-font-lg: 14.5px;
+	--inq-font-xl: 16px;
+	--inq-font-2xl: 18px;
+
+	/* spacing */
+	--inq-gap-xs: 4px;
+	--inq-gap-sm: 8px;
+	--inq-gap-md: 12px;
+	--inq-gap-lg: 18px;
+	--inq-gap-xl: 24px;
+
+	/* transitions */
+	--inq-trans: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
 /* Minimal default styles for wp-qna-board. 테마에 맞게 자유롭게 오버라이드 가능. */
+
+/* 글쓰기/수정 폼 컨테이너 — 단일 페이지(`.inquiry-single-wrap`) 와 동일하게 폭 75%.
+   모바일(≤768px) 에서는 100% 로 펼친다. */
+.inquiry-form-wrap,
+.inquiry-form-header,
+.inquiry-form,
+.inquiry-edit-form {
+	width: 75%;
+	max-width: 75%;
+	margin-left: auto;
+	margin-right: auto;
+	box-sizing: border-box;
+}
+@media (max-width: 768px) {
+	.inquiry-form-wrap,
+	.inquiry-form-header,
+	.inquiry-form,
+	.inquiry-edit-form {
+		width: 100%;
+		max-width: 100%;
+	}
+}
 
 .inquiry-form p,
 .inquiry-edit-form p,
@@ -18,14 +137,15 @@
 	margin: 0 0.5em;
 }
 .inquiry-password-form .ipf-help small {
-	color: #666;
+	color: var(--inq-text-help);
 }
 
 .inquiry-form label,
 .inquiry-edit-form label {
 	display: block;
 	font-weight: 600;
-	margin-bottom: 0.25em;
+	margin-bottom: var(--inq-gap-xs);
+	color: var(--inq-text);
 }
 
 .inquiry-form input[type="text"],
@@ -38,13 +158,161 @@
 .inquiry-edit-form select,
 .inquiry-edit-form textarea {
 	width: 100%;
-	padding: 0.5em;
+	padding: 10px 12px;
+	background: var(--inq-input-bg);
+	color: var(--inq-input-fg);
+	border: 1px solid var(--inq-input-border);
+	border-radius: var(--inq-radius-sm);
+	font-size: var(--inq-font-md);
+	line-height: 1.5;
 	box-sizing: border-box;
+	transition: var(--inq-trans);
+}
+.inquiry-form input[type="text"]:focus,
+.inquiry-form input[type="email"]:focus,
+.inquiry-form input[type="password"]:focus,
+.inquiry-form select:focus,
+.inquiry-form textarea:focus,
+.inquiry-edit-form input[type="text"]:focus,
+.inquiry-edit-form input[type="password"]:focus,
+.inquiry-edit-form select:focus,
+.inquiry-edit-form textarea:focus {
+	outline: none;
+	border-color: var(--inq-input-border-focus);
 }
 
 .inquiry-form small,
 .inquiry-edit-form small {
-	color: #666;
+	color: var(--inq-text-help);
+}
+
+/* ---------------------------------------------------------------------------
+   파일 첨부 UI — 클립 아이콘 트리거 + (선택/최대) 카운트 + 확장자 안내 + 칩 리스트
+   ------------------------------------------------------------------------- */
+.inquiry-form-files {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--inq-gap-sm) var(--inq-gap-md);
+}
+.inquiry-file-trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--inq-gap-sm);
+	padding: 8px 14px;
+	background: var(--inq-secondary-bg);
+	color: var(--inq-secondary-fg);
+	border: 1px solid var(--inq-secondary-border);
+	border-radius: var(--inq-radius-md);
+	font-size: var(--inq-font-base);
+	font-weight: 600;
+	line-height: 1.4;
+	cursor: pointer;
+	transition: var(--inq-trans);
+}
+.inquiry-file-trigger:hover,
+.inquiry-file-input:focus + .inquiry-file-help + .inquiry-file-trigger,
+.inquiry-form-files:focus-within .inquiry-file-trigger {
+	background: var(--inq-secondary-bg-hover);
+	border-color: var(--inq-secondary-border-hover);
+}
+.inquiry-file-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--inq-text-muted);
+}
+.inquiry-file-label-text {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 4px;
+}
+.inquiry-file-count {
+	color: var(--inq-text-muted);
+	font-weight: 500;
+	font-size: var(--inq-font-sm);
+}
+/* file input 은 시각적으로 숨김 (label 클릭으로 트리거, 접근성은 유지). */
+.inquiry-file-input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+.inquiry-file-help {
+	color: var(--inq-text-muted);
+	font-size: var(--inq-font-sm);
+	line-height: 1.4;
+}
+.inquiry-file-list {
+	flex: 0 0 100%;
+	list-style: none;
+	padding: 0;
+	margin: var(--inq-gap-xs) 0 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--inq-gap-xs);
+}
+.inquiry-file-list:empty {
+	display: none;
+}
+.inquiry-file-list li {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 10px;
+	background: var(--inq-bg-alt);
+	border: 1px solid var(--inq-border);
+	border-radius: var(--inq-radius-sm);
+	font-size: var(--inq-font-sm);
+	color: var(--inq-text);
+	max-width: 100%;
+}
+.inquiry-file-list .inquiry-file-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 18em;
+}
+
+/* 폼 하단 제출 버튼 — primary(amber) 채움. .inquiry-reply-submit 과 동일 톤. */
+.inquiry-form button[type="submit"],
+.inquiry-edit-form button[type="submit"] {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 10px 22px;
+	background: var(--inq-primary-bg);
+	color: var(--inq-primary-fg);
+	border: 1px solid var(--inq-primary-border);
+	border-radius: var(--inq-radius-md);
+	font-size: var(--inq-font-md);
+	font-weight: 700;
+	line-height: 1.4;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	text-transform: none;
+	transition: var(--inq-trans);
+}
+.inquiry-form button[type="submit"]:hover,
+.inquiry-form button[type="submit"]:focus,
+.inquiry-edit-form button[type="submit"]:hover,
+.inquiry-edit-form button[type="submit"]:focus {
+	background: var(--inq-primary-bg-hover);
+	border-color: var(--inq-primary-border-hover);
+	color: var(--inq-primary-fg);
+}
+.inquiry-form button[type="submit"]:active,
+.inquiry-edit-form button[type="submit"]:active {
+	background: var(--inq-primary-bg-active);
+	border-color: var(--inq-primary-bg-active);
 }
 
 .inquiry-board-list {
@@ -55,27 +323,27 @@
 .inquiry-list-actions {
 	display: flex;
 	justify-content: flex-end;
-	margin-bottom: 12px;
+	margin-bottom: var(--inq-gap-md);
 }
 /* 상단 글쓰기 영역 — 중앙 정렬. 하단 영역(--bottom)은 grid footer가 우측 정렬을 담당. */
 .inquiry-list-actions--top {
 	justify-content: center;
-	margin: 4px 0 18px;
+	margin: var(--inq-gap-xs) 0 var(--inq-gap-lg);
 }
 .inquiry-list-actions--bottom {
 	margin: 0;
 }
-/* 글쓰기 버튼 — 단일 페이지 「← 목록으로」 / 「답글 등록」 과 동일 박스 톤. */
+/* 글쓰기 버튼 — secondary(흰 박스) 톤. 단일 페이지 「← 목록으로」 와 동일. */
 .inquiry-write-btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
 	padding: 8px 14px;
-	background: #ffffff;
-	color: #0f172a;
-	border: 1px solid #e2e8f0;
-	border-radius: 10px;
-	font-size: 13px;
+	background: var(--inq-secondary-bg);
+	color: var(--inq-secondary-fg);
+	border: 1px solid var(--inq-secondary-border);
+	border-radius: var(--inq-radius-md);
+	font-size: var(--inq-font-base);
 	font-weight: 600;
 	line-height: 1.4;
 	text-decoration: none;
@@ -83,32 +351,39 @@
 	appearance: none;
 	-webkit-appearance: none;
 	text-transform: none;
-	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+	transition: var(--inq-trans);
 }
 .inquiry-write-btn:hover,
 .inquiry-write-btn:focus {
-	background: #eff6ff;
-	border-color: #98bce8;
-	color: #0f172a;
+	background: var(--inq-secondary-bg-hover);
+	border-color: var(--inq-secondary-border-hover);
+	color: var(--inq-secondary-fg);
 	text-decoration: none;
 }
-/* 큰 글쓰기 버튼(상단 hero) — 기본 사이즈의 약 2배, primary 채움으로 시인성 강화. */
+/* 큰 글쓰기 버튼(상단 hero) — primary(amber) 채움.
+   v0.4.11 의 padding 16px 32px / font-size 22px 는 너무 크다는 피드백에 따라
+   가로(좌우 padding 32px) 는 유지하되 상하 padding 과 폰트만 줄여 높이를 약 60% 로 축소.
+   배경·hover·active 는 단일 페이지의 primary 액션(「답글 등록」) 과 동일하게 토큰 기반. */
 .inquiry-write-btn--lg {
-	padding: 16px 32px;
-	font-size: 22px;
+	padding: 10px 32px;
+	font-size: var(--inq-font-xl);
 	line-height: 1.3;
-	gap: 10px;
-	border-radius: 12px;
-	background: #1d4ed8;
-	border-color: #1d4ed8;
-	color: #ffffff;
-	box-shadow: 0 6px 16px rgba(29, 78, 216, 0.18);
+	gap: var(--inq-gap-sm);
+	border-radius: var(--inq-radius-lg);
+	background: var(--inq-primary-bg);
+	border-color: var(--inq-primary-border);
+	color: var(--inq-primary-fg);
+	box-shadow: var(--inq-primary-shadow);
 }
 .inquiry-write-btn--lg:hover,
 .inquiry-write-btn--lg:focus {
-	background: #1741b6;
-	border-color: #1741b6;
-	color: #ffffff;
+	background: var(--inq-primary-bg-hover);
+	border-color: var(--inq-primary-border-hover);
+	color: var(--inq-primary-fg);
+}
+.inquiry-write-btn--lg:active {
+	background: var(--inq-primary-bg-active);
+	border-color: var(--inq-primary-bg-active);
 }
 
 /* 목록 테이블 — 둥근 모서리 + thead 진한 띠. 단일 페이지 메시지 박스 톤. */
@@ -307,28 +582,37 @@
 	align-items: center;
 	justify-content: space-between;
 	flex-wrap: wrap;
-	gap: 0.75em;
-	margin: 0 0 1em;
+	gap: var(--inq-gap-md);
+	margin: 0 0 var(--inq-gap-lg);
 }
 .inquiry-form-title {
 	margin: 0;
+	color: var(--inq-text);
 }
 .inquiry-form-back {
 	margin: 0;
 }
+/* 글쓰기 화면 「← 목록으로」 — 단일 페이지의 .inquiry-back-link 와 동일 톤. */
 .inquiry-list-btn {
-	display: inline-block;
-	padding: 0.4em 1em;
-	background: #f0f0f0;
-	color: #2c3338;
-	border: 1px solid #c3c4c7;
-	border-radius: 4px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 14px;
+	background: var(--inq-secondary-bg);
+	color: var(--inq-secondary-fg);
+	border: 1px solid var(--inq-secondary-border);
+	border-radius: var(--inq-radius-md);
+	font-size: var(--inq-font-base);
+	font-weight: 600;
+	line-height: 1.4;
 	text-decoration: none;
+	transition: var(--inq-trans);
 }
 .inquiry-list-btn:hover,
 .inquiry-list-btn:focus {
-	background: #e6e6e6;
-	color: #2c3338;
+	background: var(--inq-secondary-bg-hover);
+	border-color: var(--inq-secondary-border-hover);
+	color: var(--inq-secondary-fg);
 	text-decoration: none;
 }
 
@@ -401,21 +685,20 @@ body.single-inquiry .post-title-wrapper {
 	}
 }
 
-/* "목록으로" 링크 & "답글 등록" 버튼 — 동일 박스 톤으로 통일. */
+/* 「← 목록으로」 — secondary(흰 박스) 톤. */
 .inquiry-back-to-list {
-	margin: 0 0 18px;
+	margin: 0 0 var(--inq-gap-lg);
 }
-.inquiry-back-link,
-.inquiry-reply-submit {
+.inquiry-back-link {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
 	padding: 8px 14px;
-	background: #ffffff;
-	color: #0f172a;
-	border: 1px solid #e2e8f0;
-	border-radius: 10px;
-	font-size: 13px;
+	background: var(--inq-secondary-bg);
+	color: var(--inq-secondary-fg);
+	border: 1px solid var(--inq-secondary-border);
+	border-radius: var(--inq-radius-md);
+	font-size: var(--inq-font-base);
 	font-weight: 600;
 	line-height: 1.4;
 	text-decoration: none;
@@ -423,20 +706,50 @@ body.single-inquiry .post-title-wrapper {
 	appearance: none;
 	-webkit-appearance: none;
 	text-transform: none;
-	transition: background-color 0.15s ease, border-color 0.15s ease;
+	transition: var(--inq-trans);
 }
 .inquiry-back-link:hover,
-.inquiry-back-link:focus,
-.inquiry-reply-submit:hover,
-.inquiry-reply-submit:focus {
-	background: #eff6ff;
-	border-color: #98bce8;
-	color: #0f172a;
+.inquiry-back-link:focus {
+	background: var(--inq-secondary-bg-hover);
+	border-color: var(--inq-secondary-border-hover);
+	color: var(--inq-secondary-fg);
 	text-decoration: none;
 }
 .inquiry-back-link span[aria-hidden="true"] {
-	font-size: 15px;
+	font-size: var(--inq-font-xl);
 	line-height: 1;
+}
+
+/* 「답글 등록」 — primary(amber) 채움 톤. 큰 글쓰기 버튼 과 동일 색상. */
+.inquiry-reply-submit {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 10px 22px;
+	background: var(--inq-primary-bg);
+	color: var(--inq-primary-fg);
+	border: 1px solid var(--inq-primary-border);
+	border-radius: var(--inq-radius-md);
+	font-size: var(--inq-font-md);
+	font-weight: 700;
+	line-height: 1.4;
+	text-decoration: none;
+	cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	text-transform: none;
+	transition: var(--inq-trans);
+}
+.inquiry-reply-submit:hover,
+.inquiry-reply-submit:focus {
+	background: var(--inq-primary-bg-hover);
+	border-color: var(--inq-primary-border-hover);
+	color: var(--inq-primary-fg);
+	text-decoration: none;
+}
+.inquiry-reply-submit:active {
+	background: var(--inq-primary-bg-active);
+	border-color: var(--inq-primary-bg-active);
 }
 
 /* ---------------------------------------------------------------------------
@@ -558,32 +871,36 @@ body.single-inquiry .post-title-wrapper {
 }
 
 .inquiry-reply-form {
-	margin-top: 18px;
-	padding-top: 18px;
-	border-top: 1px solid #e2e8f0;
+	margin-top: var(--inq-gap-lg);
+	padding-top: var(--inq-gap-lg);
+	border-top: 1px solid var(--inq-border);
 }
 .inquiry-reply-form label {
 	display: block;
 	font-weight: 600;
-	margin-bottom: 8px;
-	font-size: 14px;
-	color: #0f172a;
+	margin-bottom: var(--inq-gap-sm);
+	font-size: var(--inq-font-md);
+	color: var(--inq-text);
 }
 .inquiry-reply-form textarea {
 	width: 100%;
 	min-height: 120px;
 	padding: 10px 12px;
-	border: 1px solid #cbd5e1;
-	border-radius: 8px;
-	font-size: 14px;
+	border: 1px solid var(--inq-input-border);
+	border-radius: var(--inq-radius-sm);
+	font-size: var(--inq-font-md);
 	font-family: inherit;
 	resize: vertical;
 	box-sizing: border-box;
-	background: #fff;
+	background: var(--inq-input-bg);
+	color: var(--inq-input-fg);
+	transition: var(--inq-trans);
 }
-/* 답글 등록 버튼은 .inquiry-back-link 와 동일 박스 톤(위 통합 규칙).
-   textarea 와의 간격만 별도 적용. */
-.inquiry-reply-submit {
+.inquiry-reply-form textarea:focus {
+	outline: none;
+	border-color: var(--inq-input-border-focus);
+}
+.inquiry-reply-form .inquiry-reply-submit {
 	margin-top: 10px;
 }
 

@@ -18,6 +18,8 @@ $redirect = ! empty( $atts['redirect'] ) ? (string) $atts['redirect'] : $list_ur
 $form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts['title'] : __( '문의하기', 'wp-qna-board' );
 ?>
 
+<div class="inquiry-form-wrap">
+
 <div class="inquiry-form-header">
 	<?php if ( $form_title ) : ?>
 		<h2 class="inquiry-form-title"><?php echo esc_html( $form_title ); ?></h2>
@@ -85,10 +87,35 @@ $form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts[
 		?>
 	</p>
 
-	<p>
-		<label for="inq_files"><?php esc_html_e( '첨부 (선택)', 'wp-qna-board' ); ?></label>
-		<input type="file" id="inq_files" name="inquiry_attachments[]" multiple>
-		<br><small><?php echo esc_html( sprintf( __( '확장자: %1$s · 최대 %2$d MB', 'wp-qna-board' ), $opts['allowed_ext'], (int) $opts['max_upload_mb'] ) ); ?></small>
+	<?php
+	/**
+	 * 파일 첨부 UI — 클립 아이콘 + (선택수/최대) 카운트 + 확장자·용량 안내.
+	 * 실제 file input 은 시각적으로 숨기고(label 의 클릭으로 트리거),
+	 * inquiry-file-list 에 선택된 파일명을 chip 형태로 표시한다.
+	 * (max=5 는 현재 하드코딩, 후속 패치에서 settings 옵션으로 분리 예정.)
+	 */
+	$inq_max_files = 5;
+	$inq_accept    = '.' . str_replace( ',', ',.', (string) $opts['allowed_ext'] );
+	$inq_ext_label = strtoupper( str_replace( ',', ', ', (string) $opts['allowed_ext'] ) );
+	?>
+	<p class="inquiry-form-files">
+		<label class="inquiry-file-trigger" for="inq_files">
+			<span class="inquiry-file-icon" aria-hidden="true">
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 1 1-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+			</span>
+			<span class="inquiry-file-label-text">
+				<?php esc_html_e( '파일 첨부', 'wp-qna-board' ); ?>
+				<span class="inquiry-file-count" data-max="<?php echo (int) $inq_max_files; ?>">(0/<?php echo (int) $inq_max_files; ?>)</span>
+			</span>
+		</label>
+		<input type="file" id="inq_files" name="inquiry_attachments[]" multiple
+		       class="inquiry-file-input"
+		       data-max="<?php echo (int) $inq_max_files; ?>"
+		       accept="<?php echo esc_attr( $inq_accept ); ?>">
+		<span class="inquiry-file-help">
+			<?php echo esc_html( sprintf( __( '%1$s / 최대 %2$d MB', 'wp-qna-board' ), $inq_ext_label, (int) $opts['max_upload_mb'] ) ); ?>
+		</span>
+		<ul class="inquiry-file-list" aria-live="polite"></ul>
 	</p>
 
 	<?php if ( $site_key ) : ?>
@@ -108,7 +135,9 @@ $form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts[
 		</script>
 	<?php endif; ?>
 
-	<p>
-		<button type="submit" class="button button-primary"><?php esc_html_e( '등록', 'wp-qna-board' ); ?></button>
+	<p class="inquiry-form-actions">
+		<button type="submit" class="button button-primary inquiry-form-submit"><?php esc_html_e( '등록 하기', 'wp-qna-board' ); ?></button>
 	</p>
 </form>
+
+</div><!-- /.inquiry-form-wrap -->

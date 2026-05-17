@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.4.11
+Stable tag: 0.4.12
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,16 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.4.12 =
+* design tokens: 전역 CSS 변수 도입. `assets/wp-qna-board.css` 최상단 `:where(...)` 블록에 `--inq-bg`, `--inq-text`, `--inq-border`, `--inq-primary-bg`, `--inq-secondary-*`, `--inq-radius-*`, `--inq-font-*`, `--inq-gap-*` 등 색·라디우스·폰트·간격을 토큰화. specificity 0 으로 노출해 테마/자식 테마에서 단순 오버라이드 가능. 후속 패치(v0.4.13 예정) 에서 관리자 설정 페이지의 color picker 가 이 값을 동적으로 덮어쓰도록 wp_head 인라인 `:root` 블록을 출력할 예정.
+* primary action: 큰 글쓰기 버튼(`.inquiry-write-btn--lg`), 단일 페이지 답글 등록(`.inquiry-reply-submit`), 글쓰기/수정 폼 제출(`.inquiry-form button[type="submit"]`) 의 톤을 amber 채움(`#fbbf24` / hover `#f59e0b` / active `#d97706` + 흰 글자 + `box-shadow`) 으로 통일. 단일 페이지 「답글 등록」 = 목록 「큰 글쓰기」 = 글쓰기 「등록 하기」 동일 시각.
+* secondary action: 단일 페이지 「← 목록으로」(`.inquiry-back-link`), 목록 하단 작은 글쓰기(`.inquiry-write-btn`), 글쓰기 화면 「← 목록으로」(`.inquiry-list-btn`) 의 톤을 secondary 토큰(흰 박스 + `--inq-border` + hover `--inq-bg-admin`) 으로 통일.
+* 큰 글쓰기 버튼 사이즈: v0.4.11 의 `padding: 16px 32px / font-size: 22px` 가 너무 크다는 피드백에 따라 가로(좌우 padding 32px) 는 유지하면서 상하 padding 10px + font-size `var(--inq-font-xl=16px)` 로 축소(높이 약 60% 수준).
+* 글쓰기 화면 컨테이너 폭: `.inquiry-form-wrap`, `.inquiry-form-header`, `.inquiry-form`, `.inquiry-edit-form` 의 폭을 단일 페이지(`.inquiry-single-wrap`) 와 동일하게 75% (모바일 ≤768px 100%). 글쓰기 폼을 `<div class="inquiry-form-wrap">…</div>` 로 wrap 추가.
+* 파일 첨부 UI: 글쓰기 폼의 `<input type="file">` 을 클립 아이콘(SVG) + 「파일 첨부 (선택수/최대)」 카운트 라벨 + 확장자·용량 안내 + 선택 파일 칩 리스트 UI 로 교체. `assets/wp-qna-board.js` 에 file picker 핸들러 추가 — 선택 시 카운트·칩 갱신, 최대 개수(현재 5 하드코딩) 초과 시 alert + input 초기화. 후속 패치에서 `max_attachments` 옵션 분리 예정.
+* form input/textarea/select 톤 통일: 모든 입력 요소가 `--inq-input-*` 토큰 사용 (`padding 10px 12px`, `border-radius: var(--inq-radius-sm)`, focus 시 `border-color: var(--inq-input-border-focus)`).
+* 「등록」 라벨을 「등록 하기」 로 변경.
 
 = 0.4.11 =
 * list: 상단 글쓰기 버튼(`.inquiry-write-btn--lg`)을 중앙 정렬 + 약 2배 크기(`font-size: 22px`, `padding: 16px 32px`)로 확대. primary blue(`#1d4ed8`) 채움 + 흰 글자 + 살짝의 그림자(`box-shadow: 0 6px 16px rgba(29,78,216,.18)`)로 시인성 강화.
