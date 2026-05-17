@@ -59,6 +59,12 @@ function inquiry_board_decorate_content( string $content ): string {
 		return $content;
 	}
 
+	// 비번 보호 + 미인증 상태에서는 $content 가 이미 the_password_form 결과로 대체되어 있다.
+	// 그 뒤에 첨부 목록·수정 버튼을 append 하면 비번 입력 화면에서 첨부 URL 이 노출되므로 차단.
+	if ( post_password_required( $post_id ) ) {
+		return $content;
+	}
+
 	$is_owner  = inquiry_board_is_owner( $post_id );
 	$want_edit = isset( $_GET['inquiry_action'] ) && $_GET['inquiry_action'] === 'edit';
 
