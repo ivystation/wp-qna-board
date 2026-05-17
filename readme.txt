@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.5.1
+Stable tag: 0.5.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,17 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.5.2 =
+* 글쓰기 / 수정 폼의 가로 폭을 목록 페이지(`.inquiry-board-list`) 와 동일한 컨테이너 100% 로 변경 (v0.5.0 까지 적용된 75% 제한 해제). ukuhak.com 피드백 반영. 단일 페이지(`.inquiry-single-wrap`) 는 기존대로 75% 유지.
+* 글쓰기 폼 헤더(`.inquiry-form-header`) 를 3-grid(`목록으로 | 타이틀 | 여백`) 로 재구성 + 하단 hairline 1px 구분선. 타이틀(`.inquiry-form-title`) 은 display-lg(32px, weight 300) → heading-md(20px, weight 400) 로 컴팩트하게.
+* 「목록으로」 (`.inquiry-list-btn`) 사이즈 다운(min-height 36 → 32px, padding 8/16 → 6/14, font tabular → caption) — primary CTA 「등록 하기」 와 시각적 위계 분명히.
+* 카테고리·라벨 select(`<select>`) 에 네이티브 chevron 제거 + indigo SVG chevron(`%234434d4`) 으로 교체. `appearance: none` + `padding-right: 40px` + 우측 14px 위치.
+* 입력 필드 padding 8/12 → 10/14, min-height 40 → 42 로 살짝 키워 타이핑 가독성 ↑.
+* 라벨 톤을 caption(13px, ink-secondary, -0.39px 트래킹) 으로 정리, 필수 표식(`*`) 은 `--inq-ruby` 컬러.
+* 「등록 하기」 / 「수정 저장」 행(`.inquiry-form-actions`): hairline 분리선 위에 우측 정렬. 모바일(≤640px) 에서는 column + full-width 로 터치 영역 확보.
+* body class 필터 추가: `[inquiry_form]` 숏코드가 박힌 페이지에 자동으로 `inquiry-shortcode-page` 클래스 부여 (`inc/form.php`). 단일 inquiry CPT 페이지(`body.single-inquiry`) 와 동일한 hero-hide CSS 가 글쓰기·목록 페이지에도 적용된다.
+* Uncode 호환 hero·share·breadcrumb 영역 hide 확대: `.share-on-side`, `.share-on-hover`, `.post-share`, `.uncode-share`, `.header-share`, `.breadcrumb(s)`, `.breadcrumb-trail`, `.uncode-breadcrumb`, `.post-header`, `.page-hero`, `.uncode-page-hero`, `.post-title-wrapper`, `.page-title-wrapper`, `.single-header` 모두 inquiry 관련 페이지에서 숨김. 본문 상단 padding 도 `.post-content` 64px → `--inq-gap-xl` (24px) 로 줄임.
 
 = 0.5.1 =
 * fix(thread): 관리자 답변 박스(`.inquiry-msg-admin`) 배경이 deep navy `#1c1e54` fill 이라 사이트 라이트 톤과 너무 대비되어 어둡게 보이던 문제 해결. 본문 배경을 ultra-light lavender `#f6f5ff`, 헤더 띠를 한 톤 진한 `#eceafd`, 보더를 `--inq-primary-subdued` (`#b9b9f9`) 로 변경. 좌측에 4px indigo accent bar(`::before`) 를 추가해 admin reply 정체성은 indigo 시그니처로 유지. 본문 텍스트는 `--inq-ink` (`#0d253d`) deep navy 그대로 두어 가독성 향상.

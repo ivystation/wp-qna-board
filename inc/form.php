@@ -13,6 +13,21 @@ const INQUIRY_BOARD_NONCE_FIELD  = 'inquiry_board_nonce';
 add_shortcode( 'inquiry_form', 'inquiry_board_shortcode_form' );
 
 /**
+ * body class — [inquiry_form] 숏코드가 박힌 페이지에 `inquiry-shortcode-page`
+ * 를 추가한다. CSS 가 단일 inquiry CPT 페이지(`body.single-inquiry`)와 동일하게
+ * 테마(Uncode 등)의 hero·share·breadcrumb 영역을 숨길 수 있게 한다.
+ */
+add_filter( 'body_class', static function ( array $classes ): array {
+	if ( is_singular() ) {
+		$post = get_post();
+		if ( $post && has_shortcode( (string) $post->post_content, 'inquiry_form' ) ) {
+			$classes[] = 'inquiry-shortcode-page';
+		}
+	}
+	return $classes;
+} );
+
+/**
  * [inquiry_form] 숏코드.
  *
  * 기본은 게시글 목록 + "글쓰기" 버튼을 표시하고, 글쓰기 버튼을 누르면

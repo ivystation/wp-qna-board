@@ -126,25 +126,17 @@
 	line-height: 1.4;
 }
 
-/* 폼/단일 페이지 공통 폭 75% (모바일 100%). 단일·아카이브·폼 모두 일관된 너비. */
+/* 글쓰기 / 수정 폼 — 목록 페이지와 동일한 컨테이너 전체 폭 사용.
+   v0.5.0 까지는 75% 였으나 ukuhak.com 피드백 반영하여 list 와 시각적 일관성 확보. */
 .inquiry-form-wrap,
 .inquiry-form-header,
 .inquiry-form,
 .inquiry-edit-form {
-	width: 75%;
-	max-width: 75%;
+	width: 100%;
+	max-width: 100%;
 	margin-left: auto;
 	margin-right: auto;
 	box-sizing: border-box;
-}
-@media (max-width: 768px) {
-	.inquiry-form-wrap,
-	.inquiry-form-header,
-	.inquiry-form,
-	.inquiry-edit-form {
-		width: 100%;
-		max-width: 100%;
-	}
 }
 
 /* ---------------------------------------------------------------------------
@@ -152,13 +144,21 @@
    DESIGN.md `text-input`: bg canvas, border hairline-input, rounded-sm 6px,
    focus 시 border 가 primary 로 전환.
    ------------------------------------------------------------------------- */
-.inquiry-form p,
-.inquiry-edit-form p,
+/* 폼 필드 행 — `<p>` 래퍼의 vertical rhythm 을 토큰 기반으로 통일.
+   기본 1em 은 비대해 보이므로 lg(16px) 로 좁히고 마지막 행만 0 로. */
+.inquiry-form > p,
+.inquiry-edit-form > p {
+	margin: 0 0 var(--inq-gap-lg);
+}
+.inquiry-form > p:last-of-type,
+.inquiry-edit-form > p:last-of-type {
+	margin-bottom: 0;
+}
 .inquiry-password-form p,
 .inquiry-password-form .ipf-msg,
 .inquiry-password-form .ipf-field,
 .inquiry-password-form .ipf-help {
-	margin: 1em 0;
+	margin: var(--inq-gap-md) 0;
 }
 
 .inquiry-password-form .ipf-field label {
@@ -179,9 +179,16 @@
 .inquiry-edit-form label {
 	display: block;
 	font-weight: 400;
-	margin-bottom: var(--inq-gap-xs);
-	color: var(--inq-ink);
-	font-size: var(--inq-font-body);
+	margin-bottom: var(--inq-gap-sm);
+	color: var(--inq-ink-secondary);
+	font-size: var(--inq-font-caption);
+	letter-spacing: -0.39px;
+}
+.inquiry-form label span[aria-hidden="true"],
+.inquiry-edit-form label span[aria-hidden="true"] {
+	color: var(--inq-ruby);
+	font-weight: 400;
+	margin-left: 2px;
 }
 
 .inquiry-form input[type="text"],
@@ -195,7 +202,7 @@
 .inquiry-edit-form textarea,
 .inquiry-password-form input[type="password"] {
 	width: 100%;
-	padding: 8px 12px;
+	padding: 10px 14px;
 	background: var(--inq-input-bg);
 	color: var(--inq-input-fg);
 	border: 1px solid var(--inq-input-border);
@@ -206,7 +213,24 @@
 	line-height: 1.4;
 	box-sizing: border-box;
 	transition: var(--inq-trans);
-	min-height: 40px;
+	min-height: 42px;
+}
+
+/* select — 네이티브 chevron 제거 + indigo SVG chevron 으로 교체. */
+.inquiry-form select,
+.inquiry-edit-form select {
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	padding-right: 40px;
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='%234434d4' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+	background-repeat: no-repeat;
+	background-position: right 14px center;
+	cursor: pointer;
+}
+.inquiry-form select::-ms-expand,
+.inquiry-edit-form select::-ms-expand {
+	display: none;
 }
 .inquiry-password-form input[type="password"] {
 	width: auto;
@@ -683,40 +707,59 @@
 }
 
 /* ---------------------------------------------------------------------------
-   글쓰기 폼 헤더
+   글쓰기 / 수정 폼 헤더
+   - 「목록으로」 왼쪽, 타이틀은 중앙 hero 처럼 정렬.
+   - 헤더 하단에 hairline 1px 구분선 → 폼 본문과의 시각적 분리.
+   - 타이틀은 display-lg(32px) 가 너무 커서 ukuhak.com 콘텐츠 톤과 안 어울리던 점을 반영해
+     heading-md(20px) 로 컴팩트하게.
    ------------------------------------------------------------------------- */
 .inquiry-form-header {
-	display: flex;
+	display: grid;
+	grid-template-columns: auto 1fr auto;
 	align-items: center;
-	justify-content: space-between;
-	flex-wrap: wrap;
 	gap: var(--inq-gap-md);
-	margin: 0 0 var(--inq-gap-lg);
+	margin: 0 0 var(--inq-gap-xl);
+	padding: 0 0 var(--inq-gap-md);
+	border-bottom: 1px solid var(--inq-hairline);
+}
+.inquiry-form-back {
+	grid-column: 1;
+	margin: 0;
 }
 .inquiry-form-title {
+	grid-column: 2;
 	margin: 0;
 	color: var(--inq-ink);
-	font-size: var(--inq-font-display-lg);
-	font-weight: 300;
-	line-height: 1.1;
-	letter-spacing: -0.64px;
+	font-size: var(--inq-font-heading-md);
+	font-weight: 400;
+	line-height: 1.3;
+	letter-spacing: -0.2px;
+	text-align: center;
 }
-.inquiry-form-back { margin: 0; }
+@media (max-width: 640px) {
+	.inquiry-form-header {
+		grid-template-columns: 1fr;
+		text-align: center;
+	}
+	.inquiry-form-back { grid-column: 1; justify-self: start; }
+	.inquiry-form-title { grid-column: 1; text-align: left; }
+}
 
-/* 「← 목록으로」 (글쓰기 폼 헤더) — secondary outline pill. */
+/* 「← 목록으로」 (글쓰기 폼 헤더) — secondary outline pill (compact).
+   답글 등록·등록 하기 같은 primary 와 시각적 위계 분명히. */
 .inquiry-list-btn {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	padding: 8px 16px;
+	padding: 6px 14px;
 	background: var(--inq-secondary-bg);
 	color: var(--inq-secondary-fg);
 	border: 1px solid var(--inq-secondary-border);
 	border-radius: var(--inq-radius-pill);
-	font-size: var(--inq-font-tabular);
+	font-size: var(--inq-font-caption);
 	font-weight: 400;
 	line-height: 1;
-	min-height: 36px;
+	min-height: 32px;
 	text-decoration: none;
 	transition: var(--inq-trans);
 }
@@ -726,6 +769,26 @@
 	border-color: var(--inq-secondary-border-hover);
 	color: var(--inq-primary-deep);
 	text-decoration: none;
+}
+
+/* 「등록 하기」 / 「수정 저장」 행 — hairline 분리선 위에 우측 정렬.
+   모바일(≤640px) 에서는 버튼이 full-width 가 되어 터치 영역 확보. */
+.inquiry-form-actions {
+	margin: var(--inq-gap-xl) 0 0;
+	padding: var(--inq-gap-lg) 0 0;
+	border-top: 1px solid var(--inq-hairline);
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--inq-gap-md);
+}
+@media (max-width: 640px) {
+	.inquiry-form-actions {
+		flex-direction: column;
+	}
+	.inquiry-form-actions button[type="submit"],
+	.inquiry-form-actions .button {
+		width: 100%;
+	}
 }
 
 @media (max-width: 640px) {
@@ -802,24 +865,65 @@
 }
 
 /* ---------------------------------------------------------------------------
-   inquiry CPT 단일 페이지 레이아웃 (Uncode 호환)
+   inquiry CPT 단일 + shortcode 페이지 레이아웃 (Uncode 호환)
+   ──────────────────────────────────────────────────────────────────────────
+   사이트 사용자(ukuhak.com) 피드백: 본문 상단 social share + page title +
+   breadcrumb 가 한 화면 가득 들어차 본문 시작이 한참 뒤로 밀린다. inquiry
+   관련 페이지에 한해 hero·share·breadcrumb 영역을 모두 숨겨 본문을 위로 끌어올린다.
+   broad selector 라 다른 페이지·다른 테마에는 영향 없도록 body 스코프 필수.
    ------------------------------------------------------------------------- */
 body.single-inquiry .related-article,
 body.single-inquiry .recent-article {
 	display: none !important;
 }
-body.single-inquiry .post-content {
-	padding-top: 60px;
+/* hero / share / breadcrumb 통합 hide — Uncode 와 동급 테마 다수에 매칭. */
+body.single-inquiry .share-on-side,
+body.single-inquiry .share-on-hover,
+body.single-inquiry .post-share,
+body.single-inquiry .uncode-share,
+body.single-inquiry .header-share,
+body.single-inquiry .breadcrumb,
+body.single-inquiry .breadcrumbs,
+body.single-inquiry .breadcrumb-trail,
+body.single-inquiry .uncode-breadcrumb,
+body.single-inquiry .post-header,
+body.single-inquiry .page-hero,
+body.single-inquiry .uncode-page-hero,
+body.single-inquiry .post-title-wrapper,
+body.single-inquiry .page-title-wrapper,
+body.single-inquiry .single-header,
+body.inquiry-shortcode-page .share-on-side,
+body.inquiry-shortcode-page .share-on-hover,
+body.inquiry-shortcode-page .post-share,
+body.inquiry-shortcode-page .uncode-share,
+body.inquiry-shortcode-page .header-share,
+body.inquiry-shortcode-page .breadcrumb,
+body.inquiry-shortcode-page .breadcrumbs,
+body.inquiry-shortcode-page .breadcrumb-trail,
+body.inquiry-shortcode-page .uncode-breadcrumb,
+body.inquiry-shortcode-page .post-header,
+body.inquiry-shortcode-page .page-hero,
+body.inquiry-shortcode-page .uncode-page-hero,
+body.inquiry-shortcode-page .page-title-wrapper,
+body.inquiry-shortcode-page .single-header {
+	display: none !important;
+}
+/* hero 가 사라졌으므로 본문 상단 padding 도 가볍게 — 자연스러운 호흡감만 유지. */
+body.single-inquiry .post-content,
+body.inquiry-shortcode-page .post-content {
+	padding-top: var(--inq-gap-xl);
 }
 @media (max-width: 768px) {
-	body.single-inquiry .post-content {
-		padding-top: 32px;
+	body.single-inquiry .post-content,
+	body.inquiry-shortcode-page .post-content {
+		padding-top: var(--inq-gap-lg);
 	}
 }
 
-/* 본문 폭 75% (모바일 100%) — 타이틀도 동일 폭. */
-.inquiry-single-wrap,
-body.single-inquiry .post-title-wrapper {
+/* 단일 페이지 본문(`.inquiry-single-wrap`) 은 그대로 75% (모바일 100%) 유지.
+   글쓰기·목록 페이지는 위쪽 `.inquiry-form-wrap` / `.inquiry-board-list` 가
+   100% 컨테이너 폭을 그대로 사용한다. */
+.inquiry-single-wrap {
 	width: 75%;
 	max-width: 75%;
 	margin-left: auto;
@@ -827,8 +931,7 @@ body.single-inquiry .post-title-wrapper {
 	box-sizing: border-box;
 }
 @media (max-width: 768px) {
-	.inquiry-single-wrap,
-	body.single-inquiry .post-title-wrapper {
+	.inquiry-single-wrap {
 		width: 100%;
 		max-width: 100%;
 	}
