@@ -55,8 +55,8 @@ $write_url = add_query_arg( 'ipv', 'write', $base_url );
 ?>
 <section class="inquiry-board-list">
 	<?php if ( ! empty( $atts['show_write_button'] ) ) : ?>
-		<div class="inquiry-list-actions">
-			<a class="button button-primary inquiry-write-btn" href="<?php echo esc_url( $write_url ); ?>">
+		<div class="inquiry-list-actions inquiry-list-actions--top">
+			<a class="button button-primary inquiry-write-btn inquiry-write-btn--lg" href="<?php echo esc_url( $write_url ); ?>">
 				<?php esc_html_e( '글쓰기', 'wp-qna-board' ); ?>
 			</a>
 		</div>
@@ -106,9 +106,10 @@ $write_url = add_query_arg( 'ipv', 'write', $base_url );
 		</table>
 
 		<?php
-		$total_pages = (int) $list->max_num_pages;
-		if ( $total_pages > 1 ) :
-			$pagination = paginate_links( [
+		$total_pages     = (int) $list->max_num_pages;
+		$pagination_html = '';
+		if ( $total_pages > 1 ) {
+			$pagination_links = paginate_links( [
 				// `?paged=N` 을 쓰면 WP redirect_canonical 이 일반 page 에서 자동으로
 				// `/page/N/` 으로 301 → 페이지 분할이 없어 404. 자체 쿼리 변수 `inq_paged`
 				// 를 사용하면 canonical redirect 가 발동하지 않으면서 본문 쿼리가 정상 동작.
@@ -121,9 +122,25 @@ $write_url = add_query_arg( 'ipv', 'write', $base_url );
 				'next_text' => __( '다음 »', 'wp-qna-board' ),
 				'type'      => 'list',
 			] );
-			if ( $pagination ) :
-				echo '<nav class="inquiry-pagination" aria-label="' . esc_attr__( '페이지 이동', 'wp-qna-board' ) . '">' . $pagination . '</nav>';
-			endif;
+			if ( $pagination_links ) {
+				$pagination_html = '<nav class="inquiry-pagination" aria-label="' . esc_attr__( '페이지 이동', 'wp-qna-board' ) . '">' . $pagination_links . '</nav>';
+			}
+		}
+
+		$show_bottom_write = ! empty( $atts['show_write_button'] );
+		if ( $pagination_html !== '' || $show_bottom_write ) :
+			?>
+			<div class="inquiry-list-footer">
+				<?php echo $pagination_html; // already escaped via paginate_links + esc_attr__ ?>
+				<?php if ( $show_bottom_write ) : ?>
+					<div class="inquiry-list-actions inquiry-list-actions--bottom">
+						<a class="button button-primary inquiry-write-btn" href="<?php echo esc_url( $write_url ); ?>">
+							<?php esc_html_e( '글쓰기', 'wp-qna-board' ); ?>
+						</a>
+					</div>
+				<?php endif; ?>
+			</div>
+			<?php
 		endif;
 
 		wp_reset_postdata();

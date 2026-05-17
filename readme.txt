@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.4.10
+Stable tag: 0.4.11
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,11 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.4.11 =
+* list: 상단 글쓰기 버튼(`.inquiry-write-btn--lg`)을 중앙 정렬 + 약 2배 크기(`font-size: 22px`, `padding: 16px 32px`)로 확대. primary blue(`#1d4ed8`) 채움 + 흰 글자 + 살짝의 그림자(`box-shadow: 0 6px 16px rgba(29,78,216,.18)`)로 시인성 강화.
+* list: 하단에 원래 사이즈의 글쓰기 버튼(`.inquiry-list-actions--bottom`)을 추가해 페이지네이션과 같은 라인에 배치. 신규 `.inquiry-list-footer` 가 grid 3컬럼(`1fr / auto / 1fr`) 로 페이지네이션을 시각적 중앙에 두고 글쓰기 버튼을 우측 끝에 정렬. 모바일(≤600px) 에서는 1컬럼으로 stack.
+* pagination: `nav.inquiry-pagination` 과 내부 `ul/ol/li` 의 외곽 라인(테마/플러그인이 추가하는 경우)을 `border: 0; background: transparent; box-shadow: none` 으로 명시적으로 제거. 각 페이지 숫자(`.page-numbers`)의 보더는 그대로 유지.
 
 = 0.4.10 =
 * fix(list): 페이지네이션 클릭 시 404 발생 수정. `paginate_links()` 가 `?paged=N` 으로 URL 을 생성하면 WP `redirect_canonical` 이 일반 page(쇼트코드를 박아 둔 페이지) 에서 자동으로 `/page/N/` 로 301 redirect 하는데, 해당 page 에는 `<!--nextpage-->` 분할이 없어 404 가 떴다. 자체 쿼리 변수 `?inq_paged=N` 으로 base 를 변경(템플릿이 이미 `$_GET['inq_paged']` 를 수신). canonical redirect 가 발동하지 않으면서 본문 쿼리가 정상 동작.

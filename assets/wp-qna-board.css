@@ -57,6 +57,14 @@
 	justify-content: flex-end;
 	margin-bottom: 12px;
 }
+/* 상단 글쓰기 영역 — 중앙 정렬. 하단 영역(--bottom)은 grid footer가 우측 정렬을 담당. */
+.inquiry-list-actions--top {
+	justify-content: center;
+	margin: 4px 0 18px;
+}
+.inquiry-list-actions--bottom {
+	margin: 0;
+}
 /* 글쓰기 버튼 — 단일 페이지 「← 목록으로」 / 「답글 등록」 과 동일 박스 톤. */
 .inquiry-write-btn {
 	display: inline-flex;
@@ -75,7 +83,7 @@
 	appearance: none;
 	-webkit-appearance: none;
 	text-transform: none;
-	transition: background-color 0.15s ease, border-color 0.15s ease;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 .inquiry-write-btn:hover,
 .inquiry-write-btn:focus {
@@ -83,6 +91,24 @@
 	border-color: #98bce8;
 	color: #0f172a;
 	text-decoration: none;
+}
+/* 큰 글쓰기 버튼(상단 hero) — 기본 사이즈의 약 2배, primary 채움으로 시인성 강화. */
+.inquiry-write-btn--lg {
+	padding: 16px 32px;
+	font-size: 22px;
+	line-height: 1.3;
+	gap: 10px;
+	border-radius: 12px;
+	background: #1d4ed8;
+	border-color: #1d4ed8;
+	color: #ffffff;
+	box-shadow: 0 6px 16px rgba(29, 78, 216, 0.18);
+}
+.inquiry-write-btn--lg:hover,
+.inquiry-write-btn--lg:focus {
+	background: #1741b6;
+	border-color: #1741b6;
+	color: #ffffff;
 }
 
 /* 목록 테이블 — 둥근 모서리 + thead 진한 띠. 단일 페이지 메시지 박스 톤. */
@@ -164,10 +190,46 @@
 	line-height: 1.6;
 }
 
-/* 페이지네이션 — list-style marker 강제 제거 + 박스 톤 버튼. */
+/* 목록 푸터 — 페이지네이션(중앙) + 작은 글쓰기 버튼(우측) 한 줄 배치.
+   grid 3컬럼(1fr / auto / 1fr) 이라 페이지네이션이 시각적 중앙을 유지하면서
+   글쓰기 버튼은 우측 끝에 붙는다. 한쪽만 있어도 자기 자리에 들어간다. */
+.inquiry-list-footer {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	gap: 12px;
+	margin: 18px 0;
+}
+.inquiry-list-footer .inquiry-pagination {
+	grid-column: 2;
+	margin: 0;
+}
+.inquiry-list-footer .inquiry-list-actions--bottom {
+	grid-column: 3;
+	justify-self: end;
+}
+@media (max-width: 600px) {
+	.inquiry-list-footer {
+		grid-template-columns: 1fr;
+		justify-items: center;
+		gap: 14px;
+	}
+	.inquiry-list-footer .inquiry-pagination,
+	.inquiry-list-footer .inquiry-list-actions--bottom {
+		grid-column: 1;
+		justify-self: center;
+	}
+}
+
+/* 페이지네이션 — list-style marker 강제 제거 + 박스 톤 버튼.
+   외곽 라인(테마/플러그인이 nav·ul 에 추가하는 경우)은 명시적으로 제거하여
+   각 페이지 숫자의 보더만 남기고 그룹 전체의 외곽선은 보이지 않게 한다. */
 .inquiry-pagination {
 	margin: 18px 0;
 	text-align: center;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
 }
 .inquiry-pagination ul,
 .inquiry-pagination ul.page-numbers,
@@ -177,6 +239,9 @@
 	list-style-type: none !important;
 	padding-left: 0;
 	background-image: none !important;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
 }
 .inquiry-pagination li::marker { content: none; }
 .inquiry-pagination li::before { content: none; display: none; }
