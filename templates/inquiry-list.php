@@ -16,7 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$per_page = max( 1, (int) ( $atts['posts_per_page'] ?? 20 ) );
+$default_ppp = function_exists( 'inquiry_board_get_posts_per_page' )
+	? inquiry_board_get_posts_per_page()
+	: 20;
+$per_page = max( 1, (int) ( $atts['posts_per_page'] ?? $default_ppp ) );
 
 // 정적 페이지에 박힌 쇼트코드라 ?paged 는 WP 메인 쿼리와 충돌할 수 있어
 // 별도 쿼리 변수 ?inq_paged 를 사용한다.

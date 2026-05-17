@@ -27,10 +27,14 @@ add_shortcode( 'inquiry_form', 'inquiry_board_shortcode_form' );
  *  - redirect        작성 후 redirect URL (기존 호환)
  */
 function inquiry_board_shortcode_form( $atts = [] ): string {
+	$default_ppp = function_exists( 'inquiry_board_get_posts_per_page' )
+		? inquiry_board_get_posts_per_page()
+		: 20;
+
 	$atts = shortcode_atts( [
 		'redirect'          => '',
 		'title'             => __( '문의하기', 'wp-qna-board' ),
-		'posts_per_page'    => 20,
+		'posts_per_page'    => $default_ppp,
 		'view'              => 'auto',
 		'show_write_button' => '1',
 		'category'          => '',
