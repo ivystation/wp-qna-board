@@ -26,6 +26,7 @@ require_once INQUIRY_BOARD_DIR . 'inc/cpt.php';
 require_once INQUIRY_BOARD_DIR . 'inc/session.php';
 require_once INQUIRY_BOARD_DIR . 'inc/form.php';
 require_once INQUIRY_BOARD_DIR . 'inc/edit.php';
+require_once INQUIRY_BOARD_DIR . 'inc/single-view.php';
 require_once INQUIRY_BOARD_DIR . 'inc/permissions.php';
 require_once INQUIRY_BOARD_DIR . 'inc/comments.php';
 require_once INQUIRY_BOARD_DIR . 'inc/redirect.php';

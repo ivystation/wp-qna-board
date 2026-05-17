@@ -83,26 +83,10 @@ function inquiry_board_seed_categories(): void {
 }
 
 /**
- * 본 플러그인의 단일/아카이브 템플릿을 테마 오버라이드 없으면 자체 템플릿으로 폴백.
+ * 단일 페이지 템플릿은 테마(예: single.php) 의 표준 레이아웃을 그대로 사용한다.
+ * 추가 UI(첨부·수정 버튼·편집 폼)는 the_content 필터로 본문 영역에 주입.
+ * 테마가 single-inquiry.php 를 직접 제공하면 WP template hierarchy 가 자동으로 사용한다.
+ *
+ * 본 플러그인의 templates/single-inquiry.php 와 templates/archive-inquiry.php 는
+ * 테마 개발자가 참조용으로 복사해 갈 수 있는 reference 로 남겨둔다(자동 사용 안 함).
  */
-add_filter( 'single_template', static function ( string $template ): string {
-	if ( is_singular( 'inquiry' ) && ! str_contains( $template, 'single-inquiry' ) ) {
-		$theme = locate_template( [ 'single-inquiry.php' ] );
-		if ( $theme ) {
-			return $theme;
-		}
-		return INQUIRY_BOARD_TEMPLATES . 'single-inquiry.php';
-	}
-	return $template;
-} );
-
-add_filter( 'archive_template', static function ( string $template ): string {
-	if ( is_post_type_archive( 'inquiry' ) ) {
-		$theme = locate_template( [ 'archive-inquiry.php' ] );
-		if ( $theme ) {
-			return $theme;
-		}
-		return INQUIRY_BOARD_TEMPLATES . 'archive-inquiry.php';
-	}
-	return $template;
-} );
