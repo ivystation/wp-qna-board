@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.5.3
+Stable tag: 0.5.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,9 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.5.4 =
+* feat(list): 목록 테이블 모바일(≤640px) 카드형 stack 레이아웃. `<thead>` 숨김, 행 단위로 풀폭 제목 + 그 아래 「작성자 · 작성일」 메타 라인. col-num, col-cat 은 모바일에서 계속 숨김. 좌우 패딩을 row 단위 16px 로 통일해 컨테이너 내부 여백 균일화. 데스크탑(>640px) 그리드·헤더는 무수정.
 
 = 0.5.3 =
 * fix(button): primary CTA(글쓰기·등록 하기·수정 저장·답글 등록·확인) 톤을 indigo `#533afd` → **검정(deep ink) `#0f172a` fill + 흰 텍스트** 로 통일. ukuhak.com 에서 테마(Uncode) 의 `button[type=submit]` 글로벌 룰이 indigo bg 를 흰색에 가깝게 덮어써서 흰 텍스트가 안 보이던 문제 해결. hover `#1e293b`, active `#000000`.

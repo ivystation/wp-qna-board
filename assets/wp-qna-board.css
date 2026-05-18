@@ -840,14 +840,65 @@
 	}
 }
 
+/* ---------------------------------------------------------------------------
+   목록 테이블 — 모바일(≤640px) 카드형 stack 레이아웃
+   - thead 숨기고 tr 한 줄 = 카드 한 장
+   - 제목은 풀폭, 그 아래 한 줄에 작성자 · 작성일을 메타 톤으로 배치
+   - 좌우 패딩(16px)을 row 에 일관 적용해 컨테이너 내부 여백을 균일화
+   ------------------------------------------------------------------------- */
 @media (max-width: 640px) {
+	.inquiry-list {
+		display: block;
+		width: 100%;
+		font-size: var(--inq-font-body);
+	}
+	.inquiry-list thead {
+		display: none;
+	}
+	.inquiry-list tbody {
+		display: block;
+	}
+	.inquiry-list tbody tr {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 4px 0;
+		padding: 14px 16px;
+		border-bottom: 1px solid var(--inq-hairline);
+	}
+	.inquiry-list tbody tr:last-child {
+		border-bottom: 0;
+	}
+	.inquiry-list tbody td {
+		padding: 0;
+		border-bottom: 0;
+		width: auto;
+	}
 	.inquiry-list .col-num,
 	.inquiry-list .col-cat {
 		display: none;
 	}
+	.inquiry-list .col-title {
+		flex: 0 0 100%;
+		text-align: left;
+		font-size: var(--inq-font-body);
+		line-height: 1.45;
+	}
+	.inquiry-list .col-title a {
+		font-weight: 400;
+	}
 	.inquiry-list .col-author,
 	.inquiry-list .col-date {
-		width: auto;
+		flex: 0 0 auto;
+		text-align: left;
+		font-size: var(--inq-font-caption);
+		color: var(--inq-ink-mute);
+		letter-spacing: -0.39px;
+	}
+	.inquiry-list .col-author::after {
+		content: "·";
+		margin: 0 8px;
+		color: var(--inq-ink-mute);
 	}
 }
 
