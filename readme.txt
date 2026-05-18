@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.5.4
+Stable tag: 0.5.5
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,9 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.5.5 =
+* refine(list): 목록 테이블 모바일(≤640px) 다듬기 — 카드 border/shadow/radius 제거하여 풀폭, row 좌우 padding 16px → 4px 로 최소화. 작성자·작성일 메타를 caption(13px) → micro(11px) 로 축소하고 가운데점 마진 8px → 6px 로 더 컴팩트하게.
 
 = 0.5.4 =
 * feat(list): 목록 테이블 모바일(≤640px) 카드형 stack 레이아웃. `<thead>` 숨김, 행 단위로 풀폭 제목 + 그 아래 「작성자 · 작성일」 메타 라인. col-num, col-cat 은 모바일에서 계속 숨김. 좌우 패딩을 row 단위 16px 로 통일해 컨테이너 내부 여백 균일화. 데스크탑(>640px) 그리드·헤더는 무수정.

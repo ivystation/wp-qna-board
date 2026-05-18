@@ -843,14 +843,19 @@
 /* ---------------------------------------------------------------------------
    목록 테이블 — 모바일(≤640px) 카드형 stack 레이아웃
    - thead 숨기고 tr 한 줄 = 카드 한 장
-   - 제목은 풀폭, 그 아래 한 줄에 작성자 · 작성일을 메타 톤으로 배치
-   - 좌우 패딩(16px)을 row 에 일관 적용해 컨테이너 내부 여백을 균일화
+   - 제목은 풀폭, 그 아래 한 줄에 작성자 · 작성일을 micro 톤(11px) 으로 inline 배치
+   - 카드 border/shadow/radius 모바일 제거 → 풀폭. row 좌우 패딩 4px 로 최소화
    ------------------------------------------------------------------------- */
 @media (max-width: 640px) {
 	.inquiry-list {
 		display: block;
 		width: 100%;
 		font-size: var(--inq-font-body);
+		background: transparent;
+		border: 0;
+		border-radius: 0;
+		box-shadow: none;
+		overflow: visible;
 	}
 	.inquiry-list thead {
 		display: none;
@@ -862,8 +867,8 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
-		gap: 4px 0;
-		padding: 14px 16px;
+		gap: 2px 0;
+		padding: 12px 4px;
 		border-bottom: 1px solid var(--inq-hairline);
 	}
 	.inquiry-list tbody tr:last-child {
@@ -882,7 +887,7 @@
 		flex: 0 0 100%;
 		text-align: left;
 		font-size: var(--inq-font-body);
-		line-height: 1.45;
+		line-height: 1.4;
 	}
 	.inquiry-list .col-title a {
 		font-weight: 400;
@@ -891,13 +896,14 @@
 	.inquiry-list .col-date {
 		flex: 0 0 auto;
 		text-align: left;
-		font-size: var(--inq-font-caption);
+		font-size: var(--inq-font-micro);
 		color: var(--inq-ink-mute);
-		letter-spacing: -0.39px;
+		letter-spacing: -0.33px;
+		line-height: 1.4;
 	}
 	.inquiry-list .col-author::after {
 		content: "·";
-		margin: 0 8px;
+		margin: 0 6px;
 		color: var(--inq-ink-mute);
 	}
 }
