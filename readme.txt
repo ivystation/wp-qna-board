@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.6.0
+Stable tag: 0.7.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,17 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.7.0 =
+* feat(admin): **문의 편집 화면(post.php)에 「답글 작성 · 대화 스레드」 메타박스 추가** (`inc/admin-reply.php`). 그동안 관리 화면에는 답글 UI 가 아예 없어서 WP 기본 댓글 박스로만 답변할 수 있었다. 이제 한 화면에서 원문 + 첨부 + 전체 스레드를 보고 바로 답변을 등록한다.
+  * 상단 요약: 작성자 · 이메일 · 카테고리 · **답변 상태 배지** · 답변 수(관리자/전체)
+  * 스레드: 문의 원문(파란 라벨) + 댓글 시간순. 관리자 답변은 파란 배경(`#eff6ff`), 작성자 답글은 흰 배경으로 구분
+  * 첨부: 이미지 썸네일 / 그 외 확장자 칩 + 파일 크기. `_inquiry_attachments` 메타 우선, 없으면 attachment `post_parent` 폴백(마이그레이션 글 대응)
+  * 편집 화면은 이미 `<form id="post">` 로 감싸져 있어 중첩 form 을 만들 수 없으므로 **admin-ajax.php 로 제출**(nonce + `edit_post` cap 검사). 성공 시 `?inquiry_reply_notice=ok` 로 리로드
+* feat(admin): inquiry 를 **Classic Editor** 로 연다(`use_block_editor_for_post_type` 필터). 익명 문의라 본문 편집 수요가 낮고, 블록 에디터에서는 classic 메타박스가 본문 아래로 밀려 답글 UI 접근성이 떨어진다. 되돌리려면 해당 필터만 제거.
+* 답변 상태는 **새 메타를 만들지 않고** 관리자 답변 댓글 유무로 계산한다(「답변대기 / 답변완료」). 기존 글에도 즉시 적용되고 목록·프론트·마이그레이션에 파급이 없다.
+* 답글 저장은 `wp_new_comment()` 가 아니라 `wp_insert_comment()` 를 쓴다 — 전자는 flood/duplicate 검사로 관리자의 연속 답변을 거부할 수 있고 승인 상태도 필터 체인이 덮어쓴다. 대신 `comment_post` 훅이 돌지 않으므로 `_is_admin_reply` 는 직접 마킹한다.
+* 참조 구현: ivynet-16 / atumdgbktx 의 mu-plugin "Headless Support Tickets"(`support_ticket` CPT). 화면 구성을 맞추되 익명 작성자 메타 · `inquiry_category` 택소노미 · `_is_admin_reply` 등 inquiry 도메인에 맞게 매핑했다.
 
 = 0.6.0 =
 * feat(notify): 알림 메일 수신자를 **쉼표 구분 다중 지정** 지원으로 확장. 일반설정 「관리자 알림 수신 이메일」 에 `a@x.com, b@y.com` 형식으로 여러 명을 넣을 수 있다(`input type="email" multiple`). 세미콜론·공백 구분도 관대하게 파싱하며 유효하지 않은 주소는 저장 시 탈락. 미입력 시 기존대로 사이트 `admin_email` 폴백.
