@@ -57,7 +57,13 @@ $form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts[
 		</select>
 	</p>
 
-	<div class="inquiry-form-grid inquiry-form-grid--3col">
+	<?php
+	// password_required 가 켜져 있으면 모든 글을 비공개로 강제하고 공개 선택지를 감춘다(기존 동작).
+	// 꺼져 있으면 공개가 기본이고, 비공개를 고를 때만 비밀번호를 받는다.
+	$force_private = ! empty( $opts['password_required'] );
+	?>
+
+	<div class="inquiry-form-grid inquiry-form-grid--<?php echo $force_private ? '3col' : '2col'; ?>">
 		<p>
 			<label for="inq_author"><?php esc_html_e( '이름', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
 			<input type="text" id="inq_author" name="inquiry_author" required maxlength="50">
@@ -68,14 +74,47 @@ $form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts[
 			<input type="email" id="inq_email" name="inquiry_email" required>
 		</p>
 
-		<p>
-			<label for="inq_password"><?php esc_html_e( '글 비밀번호', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
-			<input type="password" id="inq_password" name="inquiry_password" required minlength="<?php echo (int) $opts['password_min_length']; ?>">
-		</p>
+		<?php if ( $force_private ) : ?>
+			<p>
+				<label for="inq_password"><?php esc_html_e( '글 비밀번호', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
+				<input type="password" id="inq_password" name="inquiry_password" required minlength="<?php echo (int) $opts['password_min_length']; ?>" autocomplete="new-password">
+			</p>
+		<?php endif; ?>
 	</div>
-	<p class="inquiry-form-help">
-		<small><?php esc_html_e( '비밀번호는 본인 글 열람·수정·댓글에 사용됩니다. 작성 직후 24시간 동안은 같은 브라우저에서 비번 입력 없이 이용할 수 있습니다.', 'wp-qna-board' ); ?></small>
-	</p>
+
+	<?php if ( $force_private ) : ?>
+		<p class="inquiry-form-help">
+			<small><?php esc_html_e( '비밀번호는 본인 글 열람·수정·댓글에 사용됩니다. 작성 직후 24시간 동안은 같은 브라우저에서 비번 입력 없이 이용할 수 있습니다.', 'wp-qna-board' ); ?></small>
+		</p>
+	<?php else : ?>
+		<fieldset class="inquiry-visibility">
+			<legend><?php esc_html_e( '공개 설정', 'wp-qna-board' ); ?></legend>
+			<label class="inquiry-visibility-opt">
+				<input type="radio" name="inquiry_visibility" value="public" checked>
+				<span><strong><?php esc_html_e( '공개', 'wp-qna-board' ); ?></strong>
+					<small><?php esc_html_e( '누구나 내용을 볼 수 있습니다.', 'wp-qna-board' ); ?></small></span>
+			</label>
+			<label class="inquiry-visibility-opt">
+				<input type="radio" name="inquiry_visibility" value="private">
+				<span><strong><?php esc_html_e( '비공개', 'wp-qna-board' ); ?></strong>
+					<small><?php esc_html_e( '비밀번호를 아는 사람과 관리자만 볼 수 있습니다.', 'wp-qna-board' ); ?></small></span>
+			</label>
+		</fieldset>
+
+		<p class="inquiry-password-field" hidden>
+			<label for="inq_password"><?php esc_html_e( '글 비밀번호', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
+			<input type="password" id="inq_password" name="inquiry_password" minlength="<?php echo (int) $opts['password_min_length']; ?>" autocomplete="new-password">
+			<small><?php printf(
+				/* translators: %d: 최소 자릿수 */
+				esc_html__( '최소 %d자. 본인 글 열람·수정·댓글에 사용됩니다.', 'wp-qna-board' ),
+				(int) $opts['password_min_length']
+			); ?></small>
+		</p>
+
+		<p class="inquiry-form-help">
+			<small><?php esc_html_e( '작성 직후 24시간 동안은 같은 브라우저에서 비밀번호 없이 수정·삭제할 수 있습니다. 공개글은 24시간이 지나면 본인 수정이 불가하니, 나중에 직접 고칠 일이 있다면 비공개로 작성해 주세요.', 'wp-qna-board' ); ?></small>
+		</p>
+	<?php endif; ?>
 
 	<p>
 		<label for="inq_content"><?php esc_html_e( '내용', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>

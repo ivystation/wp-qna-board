@@ -191,6 +191,58 @@
 	letter-spacing: -0.39px;
 	line-height: 1.5;
 }
+
+/* 공개/비공개 선택 + 조건부 비밀번호 필드 (v0.9.0) */
+.inquiry-visibility {
+	margin: 0 0 var(--inq-gap-md);
+	padding: 0;
+	border: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--inq-gap-sm, 8px);
+}
+.inquiry-visibility legend {
+	width: 100%;
+	padding: 0;
+	margin-bottom: 6px;
+	font-size: var(--inq-font-caption);
+	color: var(--inq-ink-mute);
+	letter-spacing: -0.39px;
+}
+.inquiry-visibility-opt {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	flex: 1 1 220px;
+	padding: 10px 14px;
+	border: 1px solid var(--inq-hairline-input);
+	border-radius: var(--inq-radius-md, 10px);
+	cursor: pointer;
+	background: #fff;
+}
+.inquiry-visibility-opt:hover { border-color: var(--inq-primary-subdued); }
+.inquiry-visibility-opt input { margin-top: 3px; }
+.inquiry-visibility-opt strong {
+	display: block;
+	font-size: var(--inq-font-body, 15px);
+	color: var(--inq-ink);
+	font-weight: 500;
+}
+.inquiry-visibility-opt small {
+	display: block;
+	margin-top: 2px;
+	font-size: var(--inq-font-caption);
+	color: var(--inq-ink-mute);
+	line-height: 1.45;
+}
+/* 테마가 [hidden] 을 덮어쓰는 경우가 있어 명시적으로 숨긴다. */
+.inquiry-form .inquiry-password-field[hidden] { display: none !important; }
+.inquiry-password-field small {
+	display: block;
+	margin-top: 4px;
+	font-size: var(--inq-font-caption);
+	color: var(--inq-ink-mute);
+}
 .inquiry-password-form p,
 .inquiry-password-form .ipf-msg,
 .inquiry-password-form .ipf-field,

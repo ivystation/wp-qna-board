@@ -139,9 +139,16 @@ function inquiry_board_handle_submit(): void {
 	if ( ! is_email( $email ) ) {
 		$errors[] = __( '올바른 이메일을 입력해 주세요.', 'wp-qna-board' );
 	}
-	$min_pwd = (int) ( $opts['password_min_length'] ?? 4 );
-	if ( mb_strlen( $password ) < $min_pwd ) {
-		$errors[] = sprintf( __( '비밀번호는 최소 %d자입니다.', 'wp-qna-board' ), $min_pwd );
+	$is_private = inquiry_board_is_private_submission( $opts, $_POST['inquiry_visibility'] ?? '' );
+
+	if ( $is_private ) {
+		$min_pwd = (int) ( $opts['password_min_length'] ?? 4 );
+		if ( mb_strlen( $password ) < $min_pwd ) {
+			$errors[] = sprintf( __( '비공개 글은 비밀번호가 필요합니다. (최소 %d자)', 'wp-qna-board' ), $min_pwd );
+		}
+	} else {
+		// 공개글은 비밀번호를 저장하지 않는다 — 폼에 남아 있던 값이 있어도 버린다.
+		$password = '';
 	}
 	$cat_term = $cat_slug ? get_term_by( 'slug', $cat_slug, 'inquiry_category' ) : null;
 	if ( ! $cat_term ) {
@@ -277,6 +284,19 @@ function inquiry_board_verify_recaptcha( string $token, array $opts ): bool {
 	$score = (float) ( $body['score'] ?? 0 );
 	$min   = (float) ( $opts['recaptcha_min_score'] ?? 0.3 );
 	return $score >= $min;
+}
+
+/**
+ * 이번 제출을 비공개(비밀번호 보호)로 저장할지 판정.
+ *
+ * `password_required` 옵션이 켜져 있으면 폼 값과 무관하게 항상 비공개다(기존 사이트 호환).
+ * 꺼져 있으면 공개가 기본이고, 폼에서 명시적으로 private 을 골랐을 때만 비공개.
+ */
+function inquiry_board_is_private_submission( array $opts, $raw_visibility ): bool {
+	if ( ! empty( $opts['password_required'] ) ) {
+		return true;
+	}
+	return 'private' === sanitize_key( (string) wp_unslash( $raw_visibility ) );
 }
 
 /**

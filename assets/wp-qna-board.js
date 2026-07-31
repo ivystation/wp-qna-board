@@ -45,9 +45,47 @@
 		});
 	}
 
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', initFilePickers);
-	} else {
+	/**
+	 * 공개/비공개 라디오 → 비밀번호 필드 토글.
+	 * 비공개일 때만 필드를 보이고 required 를 건다(공개일 때 required 가 남아 있으면
+	 * 숨겨진 필드 때문에 브라우저 기본 검증이 제출을 막는다).
+	 */
+	function initVisibilityToggle() {
+		var radios = document.querySelectorAll('.inquiry-form input[name="inquiry_visibility"]');
+		if (!radios.length) return;
+
+		var wrap = document.querySelector('.inquiry-form .inquiry-password-field');
+		if (!wrap) return;
+		var input = wrap.querySelector('input[type="password"]');
+
+		function sync() {
+			var checked = document.querySelector('.inquiry-form input[name="inquiry_visibility"]:checked');
+			var isPrivate = !!checked && checked.value === 'private';
+			wrap.hidden = !isPrivate;
+			if (input) {
+				if (isPrivate) {
+					input.setAttribute('required', 'required');
+				} else {
+					input.removeAttribute('required');
+					input.value = '';
+				}
+			}
+		}
+
+		Array.prototype.forEach.call(radios, function (r) {
+			r.addEventListener('change', sync);
+		});
+		sync();
+	}
+
+	function init() {
 		initFilePickers();
+		initVisibilityToggle();
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', init);
+	} else {
+		init();
 	}
 })();

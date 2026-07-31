@@ -273,8 +273,11 @@ function inquiry_board_settings_render_general(): void {
 				<td><input type="number" min="1" id="ibs_pwd_min" name="inquiry_board_settings[password_min_length]" value="<?php echo esc_attr( (string) $opts['password_min_length'] ); ?>"></td>
 			</tr>
 			<tr>
-				<th scope="row"><?php esc_html_e( '비밀번호 필수 여부', 'wp-qna-board' ); ?></th>
-				<td><label><input type="checkbox" name="inquiry_board_settings[password_required]" value="1" <?php checked( ! empty( $opts['password_required'] ) ); ?>> <?php esc_html_e( '필수로 받기 (권장)', 'wp-qna-board' ); ?></label></td>
+				<th scope="row"><?php esc_html_e( '글 공개 설정', 'wp-qna-board' ); ?></th>
+				<td>
+					<label><input type="checkbox" name="inquiry_board_settings[password_required]" value="1" <?php checked( ! empty( $opts['password_required'] ) ); ?>> <?php esc_html_e( '모든 글을 비공개로 강제 (비밀번호 필수)', 'wp-qna-board' ); ?></label><br>
+					<small><?php esc_html_e( '체크 해제 시 글쓰기 폼에 「공개 / 비공개」 선택이 나타나고 공개가 기본값이 됩니다. 비공개를 고를 때만 비밀번호를 받습니다.', 'wp-qna-board' ); ?></small>
+				</td>
 			</tr>
 			<tr>
 				<th scope="row"><label for="ibs_ttl"><?php esc_html_e( '본인 세션 lifetime (초)', 'wp-qna-board' ); ?></label></th>

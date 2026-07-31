@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.8.0
+Stable tag: 0.9.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,14 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.9.0 =
+* feat(form): 글쓰기 폼에 **「공개 / 비공개」 선택** 추가. **공개가 기본**이고, 비공개를 고를 때만 비밀번호 입력란이 나타난다(JS 토글 + 서버 재검증). 공개글은 비밀번호를 저장하지 않는다.
+* 기존 `password_required` 옵션이 그동안 **어디에서도 쓰이지 않는 dead option** 이었다. 이제 실제로 동작한다 — 켜면 예전처럼 모든 글이 비공개로 강제되고 공개 선택지가 숨겨지며, 끄면 공개/비공개 선택 UI 가 나타난다. 설정 라벨도 「비밀번호 필수 여부」 → 「글 공개 설정」 으로 바꿨다.
+* 판정 로직을 `inquiry_board_is_private_submission()` 으로 분리해 단위 검증이 가능하게 했다. 공개 제출 시 폼에 남아 있던 비밀번호 값은 서버에서 버린다.
+* 접근성/UX: 공개 선택 시 비밀번호 필드의 `required` 를 제거한다 — 숨겨진 필드에 `required` 가 남아 있으면 브라우저 기본 검증이 제출을 막는다. 필드는 `[hidden]` + CSS 로 이중 차단(테마가 `[hidden]` 을 덮어쓰는 경우 대비).
+* 공개글은 24시간 세션이 끝나면 본인 수정 수단이 없다(비밀번호가 없으므로). 폼 안내 문구로 명시했다.
+* test: `tests/test-visibility.php` 셀프체크 17항목 (판정 로직 6 · 옵션별 폼 렌더 8 · 공개/비공개 표시 2 · 옵션 원복 1).
 
 = 0.8.0 =
 * feat(notify): 알림 메일을 **HTML 템플릿으로 전면 개편**. 기존에는 「작성자 + 관리 화면 링크」 두 줄짜리 plain text 였다.
