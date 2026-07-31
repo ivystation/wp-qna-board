@@ -4,7 +4,7 @@
  * Plugin URI:        https://github.com/ivystation/wp-qna-board
  * Description:       비회원 작성 가능한 Q&A 게시판. CPT(inquiry) + 비밀번호 보호 + IP·쿠키 24시간 본인 세션 + 관리자 답변 댓글. KBoard 마이그레이션 WP-CLI 포함. GitHub Releases 자동 업데이트 지원.
  * Update URI:        https://github.com/ivystation/wp-qna-board
- * Version:           0.7.0
+ * Version:           0.8.0
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            ivynet
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'INQUIRY_BOARD_VERSION', '0.7.0' );
+define( 'INQUIRY_BOARD_VERSION', '0.8.0' );
 define( 'INQUIRY_BOARD_FILE', __FILE__ );
 define( 'INQUIRY_BOARD_DIR', plugin_dir_path( __FILE__ ) );
 define( 'INQUIRY_BOARD_URL', plugin_dir_url( __FILE__ ) );
@@ -32,6 +32,8 @@ require_once INQUIRY_BOARD_DIR . 'inc/permissions.php';
 require_once INQUIRY_BOARD_DIR . 'inc/comments.php';
 require_once INQUIRY_BOARD_DIR . 'inc/redirect.php';
 require_once INQUIRY_BOARD_DIR . 'inc/settings.php';
+// 알림 메일은 프론트엔드 폼 · 관리 화면 · WP-CLI 모든 경로에서 발송되므로 항상 로드한다.
+require_once INQUIRY_BOARD_DIR . 'inc/notify.php';
 
 // 마이그레이션 코어는 CLI/관리화면 AJAX 모두에서 사용.
 require_once INQUIRY_BOARD_DIR . 'inc/migration-map.php';

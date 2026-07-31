@@ -92,7 +92,38 @@ if ( is_wp_error( $post_id ) ) {
 	WP_CLI::error( '테스트 글 생성 실패: ' . $post_id->get_error_message() );
 }
 update_post_meta( $post_id, '_inquiry_author_name', '테스트작성자' );
+update_post_meta( $post_id, '_inquiry_author_email', 'tester@example.com' );
+wp_set_object_terms( $post_id, [ 'etc' ], 'inquiry_category', false );
 delete_post_meta( $post_id, '_inquiry_notified' ); // 재사용 시 1회성 가드 초기화
+
+// 메일 데이터·제목 빌더 단위 검증
+$d = inquiry_board_notify_data( $post_id );
+$check( '메일 데이터에 카테고리 수집', in_array( '기타', $d['categories'], true ) );
+$check( '메일 데이터에 작성자·이메일 수집', '테스트작성자' === $d['author'] && 'tester@example.com' === $d['email'] );
+$check( '제목에 사이트명·카테고리 포함', str_contains( inquiry_board_notify_subject( $d ), '· 기타' ) );
+// 운영 문의는 사실상 전부 비밀글이다. get_the_title() 은 "보호된 글: " 접두어를 붙이므로
+// 원제목(post_title)을 써야 한다 — 회귀 방지.
+$check(
+	'비밀글 제목에 "보호된 글:" 접두어가 붙지 않음',
+	( function () use ( $post_id ): bool {
+		wp_update_post( [ 'ID' => $post_id, 'post_password' => 'tempPW' ] );
+		$d = inquiry_board_notify_data( $post_id );
+		$s = inquiry_board_notify_subject( $d );
+		$ok = ! str_contains( $d['title'], '보호된 글' ) && ! str_contains( $s, '보호된 글' ) && $d['secret'];
+		wp_update_post( [ 'ID' => $post_id, 'post_password' => '' ] );
+		return $ok;
+	} )()
+);
+$check(
+	'긴 본문은 600자에서 잘림',
+	( function () use ( $post_id ): bool {
+		$orig = get_post( $post_id )->post_content;
+		wp_update_post( [ 'ID' => $post_id, 'post_content' => str_repeat( '가', 900 ) ] );
+		$long = inquiry_board_notify_data( $post_id );
+		wp_update_post( [ 'ID' => $post_id, 'post_content' => $orig ] );
+		return $long['trimmed'] && mb_strlen( $long['excerpt'] ) <= 610;
+	} )()
+);
 
 $check( 'draft 생성 단계에서는 미발송', $sent === [] );
 
@@ -101,10 +132,26 @@ do_action( 'shutdown' ); // 발송은 shutdown 지연이므로 여기서 강제 
 
 $check( 'publish 전이에서 1건 발송', count( $sent ) === 1 );
 if ( $sent ) {
-	$check( '수신자가 설정값과 일치', (array) $sent[0]['to'] === inquiry_board_notify_recipients( inquiry_board_get_settings() ) );
-	$check( '제목에 글 제목 포함', str_contains( (string) $sent[0]['subject'], '알림 메일 검증' ) );
-	$check( '본문에 작성자명 포함', str_contains( (string) $sent[0]['message'], '테스트작성자' ) );
-	$check( '본문에 관리 화면 링크 포함 (권한 무관)', str_contains( (string) $sent[0]['message'], 'post.php?post=' . $post_id ) );
+	$mail    = $sent[0];
+	$body    = (string) $mail['message'];
+	$headers = (array) ( $mail['headers'] ?? [] );
+	$hstr    = implode( "\n", array_map( 'strval', $headers ) );
+
+	$check( '수신자가 설정값과 일치', (array) $mail['to'] === inquiry_board_notify_recipients( inquiry_board_get_settings() ) );
+	$check( '제목에 글 제목 포함', str_contains( (string) $mail['subject'], '알림 메일 검증' ) );
+	$check( '본문에 작성자명 포함', str_contains( $body, '테스트작성자' ) );
+	$check( '본문에 관리 화면 링크 포함 (권한 무관)', str_contains( $body, 'post.php?post=' . $post_id ) );
+
+	// HTML 메일 (v0.8.0)
+	$check( 'Content-Type 이 text/html', str_contains( $hstr, 'text/html' ) );
+	$check( 'HTML 문서로 발송', str_contains( $body, '<!DOCTYPE html>' ) && str_contains( $body, '</html>' ) );
+	$check( 'table 레이아웃 사용 (메일 클라이언트 호환)', str_contains( $body, '<table' ) );
+	$check( 'CTA 버튼 렌더', str_contains( $body, '관리 화면에서 답변하기' ) );
+	$check( '문의 페이지 보기 링크 렌더', str_contains( $body, '문의 페이지 보기' ) );
+	$check( '본문 발췌 렌더', str_contains( $body, '문의 내용' ) );
+	$check( '등록일시 렌더', str_contains( $body, '등록일시' ) );
+	$check( '푸터에 수신자 변경 안내', str_contains( $body, '일반설정에서 변경' ) );
+	$check( '문의자 이메일이 Reply-To 로 설정', str_contains( $hstr, 'Reply-To:' ) && str_contains( $hstr, 'tester@example.com' ) );
 }
 
 // 4. 중복 방지 — draft 로 내렸다 다시 publish.

@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.7.0
+Stable tag: 0.8.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,17 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.8.0 =
+* feat(notify): 알림 메일을 **HTML 템플릿으로 전면 개편**. 기존에는 「작성자 + 관리 화면 링크」 두 줄짜리 plain text 였다.
+  * 담기는 정보: 제목 · **카테고리/비밀글 배지** · 작성자 · 이메일(mailto 링크) · 등록일시 · **첨부 파일 목록(파일명 + 용량 + 다운로드 링크)** · **본문 발췌**(600자 초과 시 자르고 안내 문구)
+  * CTA 2개: 「관리 화면에서 답변하기」(v0.7.0 답글 UI 로 직행) · 「문의 페이지 보기」
+  * 푸터에 발송 이유와 수신자 변경 위치 안내
+* feat(notify): 제목을 `[사이트명] 새 문의 · <카테고리> — <제목>` 형식으로 개선 (기존 `[사이트명] 새 문의: <제목>`).
+* feat(notify): 문의자 주소가 있으면 **`Reply-To` 헤더**를 설정해 관리자가 메일에서 바로 회신할 수 있게 했다.
+* 디자인: 플러그인 디자인 토큰과 정렬(indigo `#533afd` 액센트, deep ink `#0f172a` CTA, hairline `#e3e8ee`). 메일 클라이언트 호환을 위해 **table 레이아웃 + 인라인 스타일**만 사용하고 한글 폰트 스택을 포함했다. Outlook 은 `border-radius` 를 무시하므로 각진 카드로 자연스럽게 폴백된다.
+* refactor: 알림 관련 코드를 `inc/form.php` 에서 **`inc/notify.php` 로 분리**(수신자 파싱 · 데이터 수집 · 제목/HTML 빌더 · 발송 · 상태 전이 훅). 첨부 ID 조회 헬퍼 `inquiry_board_get_attachment_ids()` 는 알림과 관리 화면이 공용이라 항상 로드되는 `inc/form.php` 로 옮겼다(`inc/admin-reply.php` 는 `is_admin()` 안에서만 로드되므로 거기 두면 프론트 발송 경로에서 미정의가 된다).
+* test: 셀프체크를 HTML 메일 기준으로 확장 — Content-Type · Reply-To · CTA · 배지 · 발췌 트리밍 · 제목 형식 포함 총 30항목.
 
 = 0.7.0 =
 * feat(admin): **문의 편집 화면(post.php)에 「답글 작성 · 대화 스레드」 메타박스 추가** (`inc/admin-reply.php`). 그동안 관리 화면에는 답글 UI 가 아예 없어서 WP 기본 댓글 박스로만 답변할 수 있었다. 이제 한 화면에서 원문 + 첨부 + 전체 스레드를 보고 바로 답변을 등록한다.

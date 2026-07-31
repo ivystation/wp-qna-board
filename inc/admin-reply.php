@@ -60,26 +60,8 @@ function inquiry_board_is_admin_reply( $comment ): bool {
 	return $user_id > 0 && user_can( $user_id, 'moderate_comments' );
 }
 
-/**
- * 글에 딸린 첨부 ID 목록. 폼 업로드는 _inquiry_attachments 메타에 기록되지만,
- * 그 메타가 없던 시기의 글을 위해 attachment 의 post_parent 로 폴백한다.
- */
-function inquiry_board_get_attachment_ids( int $post_id ): array {
-	$ids = get_post_meta( $post_id, '_inquiry_attachments', true );
-	$ids = is_array( $ids ) ? array_values( array_filter( array_map( 'intval', $ids ) ) ) : [];
-	if ( $ids ) {
-		return $ids;
-	}
-	return array_map( 'intval', (array) get_posts( [
-		'post_type'      => 'attachment',
-		'post_parent'    => $post_id,
-		'post_status'    => 'inherit',
-		'posts_per_page' => -1,
-		'fields'         => 'ids',
-		'orderby'        => 'ID',
-		'order'          => 'ASC',
-	] ) );
-}
+// 첨부 ID 조회 헬퍼 inquiry_board_get_attachment_ids() 는 inc/form.php 에 있다
+// (알림 메일과 공용이라 admin 여부와 무관하게 로드돼야 한다).
 
 function inquiry_board_render_admin_attachments( array $ids ): void {
 	if ( ! $ids ) {
