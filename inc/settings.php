@@ -139,10 +139,23 @@ function inquiry_board_settings_sanitize( $raw ): array {
 	$out['allowed_ext']         = $exts ?: $d['allowed_ext'];
 	$out['max_upload_mb']       = max( 1, (int) ( $raw['max_upload_mb'] ?? 10 ) );
 	$out['session_ttl']         = max( 600, (int) ( $raw['session_ttl'] ?? 86400 ) );
-	$out['notify_email']        = sanitize_email( (string) ( $raw['notify_email'] ?? '' ) );
+	// 쉼표 구분 다중 수신자 허용. 유효하지 않은 주소는 조용히 탈락시킨다.
+	$out['notify_email']        = implode( ', ', inquiry_board_parse_email_list( (string) ( $raw['notify_email'] ?? '' ) ) );
 	$out['password_min_length'] = max( 1, (int) ( $raw['password_min_length'] ?? 4 ) );
 	$out['password_required']   = ! empty( $raw['password_required'] ) ? 1 : 0;
-	$out['github_token']        = sanitize_text_field( (string) ( $raw['github_token'] ?? '' ) );
+	// PAT 형식만 통과시킨다. 브라우저 비밀번호 자동완성이 사이트 로그인 비밀번호를 이 필드에
+	// 흘려넣어 평문으로 DB 에 저장되는 사고가 반복됐다(2026-05-17, 2026-07-31). 형식 검증이 그 방어선.
+	$gh                         = trim( sanitize_text_field( (string) ( $raw['github_token'] ?? '' ) ) );
+	$out['github_token']        = preg_match( '/^(ghp_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{22,}|[0-9a-f]{40})$/', $gh ) ? $gh : '';
+	// sanitize 는 WP-CLI 의 update_option 경로에서도 돌기 때문에 admin 전용 함수는 가드가 필요하다.
+	if ( '' !== $gh && '' === $out['github_token'] && function_exists( 'add_settings_error' ) ) {
+		add_settings_error(
+			'inquiry_board_settings',
+			'ib_gh_token_format',
+			__( 'GitHub Token 형식이 올바르지 않아 저장하지 않았습니다 (ghp_… / github_pat_… 만 허용). 브라우저 비밀번호 자동완성이 값을 채웠는지 확인하세요.', 'wp-qna-board' ),
+			'error'
+		);
+	}
 	$out['legacy_redirect_enabled'] = ! empty( $raw['legacy_redirect_enabled'] ) ? 1 : 0;
 
 	// 토큰이 바뀌면 GitHub 캐시를 즉시 폐기.
@@ -269,7 +282,7 @@ function inquiry_board_settings_render_general(): void {
 			</tr>
 			<tr>
 				<th scope="row"><label for="ibs_notify"><?php esc_html_e( '관리자 알림 수신 이메일', 'wp-qna-board' ); ?></label></th>
-				<td><input type="email" id="ibs_notify" name="inquiry_board_settings[notify_email]" class="regular-text" value="<?php echo esc_attr( $opts['notify_email'] ); ?>"><br><small><?php esc_html_e( '미입력 시 사이트 관리자 이메일로 발송', 'wp-qna-board' ); ?></small></td>
+				<td><input type="email" multiple id="ibs_notify" name="inquiry_board_settings[notify_email]" class="regular-text" value="<?php echo esc_attr( $opts['notify_email'] ); ?>" placeholder="a@example.com, b@example.com"><br><small><?php esc_html_e( '여러 명에게 보내려면 쉼표로 구분합니다. 미입력 시 사이트 관리자 이메일로 발송', 'wp-qna-board' ); ?></small></td>
 			</tr>
 
 			<tr>
@@ -323,7 +336,8 @@ function inquiry_board_settings_render_general(): void {
 				<th scope="row"><label for="ibs_gh_token"><?php esc_html_e( 'GitHub Token (선택)', 'wp-qna-board' ); ?></label></th>
 				<td>
 					<?php $has_const = defined( 'INQUIRY_BOARD_GH_TOKEN' ) && INQUIRY_BOARD_GH_TOKEN; ?>
-					<input type="password" id="ibs_gh_token" name="inquiry_board_settings[github_token]" class="regular-text" value="<?php echo esc_attr( $opts['github_token'] ); ?>" autocomplete="off" <?php disabled( $has_const ); ?>>
+					<?php // autocomplete="off" 는 브라우저 비밀번호 매니저가 무시한다. new-password 라야 사이트 로그인 비밀번호가 흘러들어오지 않는다. ?>
+					<input type="password" id="ibs_gh_token" name="inquiry_board_settings[github_token]" class="regular-text" value="<?php echo esc_attr( $opts['github_token'] ); ?>" autocomplete="new-password" <?php disabled( $has_const ); ?>>
 					<br>
 					<small>
 						<?php esc_html_e( 'Public 저장소(ivystation/wp-qna-board)는 토큰 없이도 동작. 비공개 저장소나 API 율 제한 회피용으로만 입력. wp-config.php 에 INQUIRY_BOARD_GH_TOKEN 정의 시 그 값이 우선.', 'wp-qna-board' ); ?>
@@ -680,7 +694,12 @@ function inquiry_board_settings_render_usage(): void {
 		<p><?php esc_html_e( '단일 글 페이지 하단의 댓글 영역에 관리자가 댓글을 남기면 자동으로 _is_admin_reply 메타가 부여되어 답변으로 표시됩니다.', 'wp-qna-board' ); ?></p>
 
 		<h2><?php esc_html_e( '5. 알림 메일', 'wp-qna-board' ); ?></h2>
-		<p><?php esc_html_e( '새 문의가 등록되면 일반설정의 "관리자 알림 수신 이메일"(미입력 시 사이트 admin_email) 로 알림이 전송됩니다.', 'wp-qna-board' ); ?></p>
+		<p><?php esc_html_e( '새 문의가 처음 발행(publish)되면 일반설정의 "관리자 알림 수신 이메일"(쉼표 구분 다중 지정 가능, 미입력 시 사이트 admin_email) 로 알림이 전송됩니다.', 'wp-qna-board' ); ?></p>
+		<ul style="list-style:disc;padding-left:20px;">
+			<li><?php esc_html_e( '프론트엔드 글쓰기 폼뿐 아니라 관리 화면 직접 작성 · WP-CLI · REST 등 모든 등록 경로에서 발송됩니다.', 'wp-qna-board' ); ?></li>
+			<li><?php esc_html_e( '글 1건당 1회만 발송됩니다(_inquiry_notified 메타 기록). 수정 저장이나 휴지통 복구로는 재발송되지 않습니다.', 'wp-qna-board' ); ?></li>
+			<li><?php esc_html_e( '초안(draft)·비공개 상태로 저장한 글은 발행 시점에 발송됩니다.', 'wp-qna-board' ); ?></li>
+		</ul>
 
 		<h2><?php esc_html_e( '6. 마이그레이션', 'wp-qna-board' ); ?></h2>
 		<p><?php esc_html_e( 'KBoard 데이터는 [마이그레이션] 탭에서 옵션을 저장한 후, 생성된 WP-CLI 명령을 SSH 에서 실행합니다. idempotent 하므로 같은 명령을 여러 번 실행해도 중복 INSERT 가 발생하지 않습니다.', 'wp-qna-board' ); ?></p>

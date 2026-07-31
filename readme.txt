@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.5.5
+Stable tag: 0.6.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,15 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.6.0 =
+* feat(notify): 알림 메일 수신자를 **쉼표 구분 다중 지정** 지원으로 확장. 일반설정 「관리자 알림 수신 이메일」 에 `a@x.com, b@y.com` 형식으로 여러 명을 넣을 수 있다(`input type="email" multiple`). 세미콜론·공백 구분도 관대하게 파싱하며 유효하지 않은 주소는 저장 시 탈락. 미입력 시 기존대로 사이트 `admin_email` 폴백.
+* fix(notify): 알림 발송 지점을 프론트엔드 폼 핸들러 내부 호출에서 **`transition_post_status` 훅**으로 이동. 기존에는 프론트엔드 글쓰기 폼으로 등록한 경우에만 메일이 나가고 **관리 화면 직접 작성 · WP-CLI · REST 로 등록한 문의는 알림이 누락**되었다. 이제 모든 등록 경로가 한 곳에서 커버된다.
+* fix(notify): 알림 메일의 「관리 화면」 링크가 항상 비어 있던 버그 수정. `get_edit_post_link()` 는 현재 사용자의 `edit_post` 권한을 검사하므로 비로그인 방문자가 폼을 제출하는 경로에서 빈 문자열을 반환했다. `admin_url( 'post.php?post=ID&action=edit' )` 로 교체.
+* `_inquiry_notified` 메타로 글 1건당 1회만 발송 — 수정 저장·휴지통 복구 시 재발송되지 않는다. 발송은 `shutdown` 으로 미뤄 폼 경로에서 `wp_insert_post` 이후 저장되는 작성자명 메타가 메일에 정상 포함되게 한다.
+* 설정 화면 [사용법] 탭 §5 알림 메일 설명을 위 동작에 맞게 갱신.
+* fix(security): 「GitHub Token (선택)」 필드에 **PAT 형식 검증** 추가 (`ghp_…` / `github_pat_…` / 40자 hex 만 허용, 그 외는 저장 거부 + 관리 화면 오류 안내). 브라우저 비밀번호 매니저가 `type="password"` 필드에 **사이트 로그인 비밀번호를 자동완성해 평문으로 DB 옵션에 저장되는 사고**가 반복됐다(2026-05-17 발견, 2026-07-31 재발). 아울러 `autocomplete="off"` → `autocomplete="new-password"` 로 교체 — 브라우저는 `off` 를 무시한다. sanitize 는 WP-CLI 의 `update_option` 경로에서도 실행되므로 `add_settings_error()` 는 `function_exists` 가드로 감쌌다.
+* test: `tests/test-notify.php` 셀프체크 추가 (`wp eval-file` 로 실행). 수신자 파싱·폴백·저장 왕복 회귀·발행 1회 발송·중복 방지·토큰 형식 검증 17항목. 실제 메일은 `pre_wp_mail` 로 가로채므로 발송되지 않는다.
 
 = 0.5.5 =
 * refine(list): 목록 테이블 모바일(≤640px) 다듬기 — 카드 border/shadow/radius 제거하여 풀폭, row 좌우 padding 16px → 4px 로 최소화. 작성자·작성일 메타를 caption(13px) → micro(11px) 로 축소하고 가운데점 마진 8px → 6px 로 더 컴팩트하게.

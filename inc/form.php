@@ -178,7 +178,7 @@ function inquiry_board_handle_submit(): void {
 
 	inquiry_board_handle_uploads( $post_id, $opts );
 	inquiry_board_issue_session( $post_id );
-	inquiry_board_notify_admin( $post_id, $opts );
+	// 알림 메일은 transition_post_status 훅이 담당한다 (아래 inquiry_board_notify_on_publish).
 
 	$redirect = ! empty( $_POST['inquiry_redirect'] )
 		? esc_url_raw( wp_unslash( $_POST['inquiry_redirect'] ) )
@@ -279,21 +279,61 @@ function inquiry_board_verify_recaptcha( string $token, array $opts ): bool {
 	return $score >= $min;
 }
 
-function inquiry_board_notify_admin( int $post_id, array $opts ): void {
-	$to = (string) ( $opts['notify_email'] ?? '' );
-	if ( ! $to ) {
-		$to = (string) get_option( 'admin_email' );
+/**
+ * 콤마·세미콜론·공백 구분 문자열 → 유효 이메일 배열 (중복 제거).
+ */
+function inquiry_board_parse_email_list( string $raw ): array {
+	$parts = preg_split( '/[,;\s]+/', $raw, -1, PREG_SPLIT_NO_EMPTY ) ?: [];
+	return array_values( array_unique( array_filter( array_map( 'sanitize_email', $parts ), 'is_email' ) ) );
+}
+
+/**
+ * 알림 수신자 목록. 미설정이면 사이트 admin_email 로 폴백.
+ */
+function inquiry_board_notify_recipients( array $opts ): array {
+	$list = inquiry_board_parse_email_list( (string) ( $opts['notify_email'] ?? '' ) );
+	if ( $list ) {
+		return $list;
 	}
-	if ( ! is_email( $to ) ) {
+	return inquiry_board_parse_email_list( (string) get_option( 'admin_email' ) );
+}
+
+function inquiry_board_notify_admin( int $post_id, array $opts ): void {
+	$to = inquiry_board_notify_recipients( $opts );
+	if ( ! $to ) {
 		return;
 	}
 	$title  = get_the_title( $post_id );
-	$link   = get_edit_post_link( $post_id, '' );
+	$link   = admin_url( 'post.php?post=' . $post_id . '&action=edit' );
 	$author = (string) get_post_meta( $post_id, '_inquiry_author_name', true );
 	$subj   = sprintf( '[%s] 새 문의: %s', wp_specialchars_decode( (string) get_bloginfo( 'name' ) ), $title );
 	$body   = sprintf( "작성자: %s\n관리 화면: %s", $author, $link );
 	wp_mail( $to, $subj, $body );
 }
+
+/**
+ * inquiry 글이 처음 publish 될 때 알림 메일을 보낸다.
+ *
+ * 프론트엔드 폼뿐 아니라 관리 화면 직접 작성 · WP-CLI · REST 등 모든 등록 경로를 한 곳에서 커버한다.
+ * `_inquiry_notified` 메타로 1회만 발송하므로 수정 저장 · 휴지통 복구 시에는 재발송되지 않는다.
+ * 발송은 shutdown 으로 미룬다 — 폼 경로는 wp_insert_post 이후에 작성자명 메타를 저장하므로
+ * 전이 시점에 즉시 보내면 작성자 이름이 비어 나간다.
+ */
+function inquiry_board_notify_on_publish( string $new_status, string $old_status, WP_Post $post ): void {
+	if ( 'publish' !== $new_status || 'inquiry' !== $post->post_type ) {
+		return;
+	}
+	if ( get_post_meta( $post->ID, '_inquiry_notified', true ) ) {
+		return;
+	}
+	update_post_meta( $post->ID, '_inquiry_notified', 1 );
+
+	$post_id = (int) $post->ID;
+	add_action( 'shutdown', static function () use ( $post_id ): void {
+		inquiry_board_notify_admin( $post_id, inquiry_board_get_settings() );
+	} );
+}
+add_action( 'transition_post_status', 'inquiry_board_notify_on_publish', 10, 3 );
 
 function inquiry_board_form_die( string $message ): void {
 	wp_die(
