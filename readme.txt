@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.10.1
+Stable tag: 0.10.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,9 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.10.2 =
+* refine(form): 제목·카테고리를 **2-up 인라인**으로 배치(기존 세로 스택). 기존 `.inquiry-form-grid--2col` 을 재사용하므로 CSS 변경은 없고, ≤768px 에서는 다른 그리드와 함께 1-col 로 접힌다.
 
 = 0.10.1 =
 * fix(form): 연락처 필드만 다른 입력란과 스타일이 달랐다(폭이 컨테이너를 안 채우고 테두리·포커스 링도 미적용). 폼 입력 스타일이 `input[type=…]` **화이트리스트** 셀렉터라 새로 추가한 `tel` 이 빠져 있던 것. `.inquiry-form input[type="tel"]` 을 기본·focus 두 규칙 모두에 추가했다.

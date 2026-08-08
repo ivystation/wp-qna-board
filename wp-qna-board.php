@@ -4,7 +4,7 @@
  * Plugin URI:        https://github.com/ivystation/wp-qna-board
  * Description:       비회원 작성 가능한 Q&A 게시판. CPT(inquiry) + 비밀번호 보호 + IP·쿠키 24시간 본인 세션 + 관리자 답변 댓글. KBoard 마이그레이션 WP-CLI 포함. GitHub Releases 자동 업데이트 지원.
  * Update URI:        https://github.com/ivystation/wp-qna-board
- * Version:           0.10.1
+ * Version:           0.10.2
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            ivynet
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'INQUIRY_BOARD_VERSION', '0.10.1' );
+define( 'INQUIRY_BOARD_VERSION', '0.10.2' );
 define( 'INQUIRY_BOARD_FILE', __FILE__ );
 define( 'INQUIRY_BOARD_DIR', plugin_dir_path( __FILE__ ) );
 define( 'INQUIRY_BOARD_URL', plugin_dir_url( __FILE__ ) );

@@ -42,20 +42,22 @@ $form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts[
 	<?php endif; ?>
 	<input type="text" name="inquiry_hp" value="" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;">
 
-	<p>
-		<label for="inq_title"><?php esc_html_e( '제목', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
-		<input type="text" id="inq_title" name="inquiry_title" required maxlength="200" class="widefat">
-	</p>
+	<div class="inquiry-form-grid inquiry-form-grid--2col">
+		<p>
+			<label for="inq_title"><?php esc_html_e( '제목', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
+			<input type="text" id="inq_title" name="inquiry_title" required maxlength="200" class="widefat">
+		</p>
 
-	<p>
-		<label for="inq_category"><?php esc_html_e( '카테고리', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
-		<select id="inq_category" name="inquiry_category" required>
-			<option value=""><?php esc_html_e( '선택하세요', 'wp-qna-board' ); ?></option>
-			<?php foreach ( $categories as $t ) : ?>
-				<option value="<?php echo esc_attr( $t->slug ); ?>"><?php echo esc_html( $t->name ); ?></option>
-			<?php endforeach; ?>
-		</select>
-	</p>
+		<p>
+			<label for="inq_category"><?php esc_html_e( '카테고리', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
+			<select id="inq_category" name="inquiry_category" required>
+				<option value=""><?php esc_html_e( '선택하세요', 'wp-qna-board' ); ?></option>
+				<?php foreach ( $categories as $t ) : ?>
+					<option value="<?php echo esc_attr( $t->slug ); ?>"><?php echo esc_html( $t->name ); ?></option>
+				<?php endforeach; ?>
+			</select>
+		</p>
+	</div>
 
 	<?php
 	// password_required 가 켜져 있으면 모든 글을 비공개로 강제하고 공개 선택지를 감춘다(기존 동작).
