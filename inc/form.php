@@ -123,6 +123,7 @@ function inquiry_board_handle_submit(): void {
 	$body     = wp_unslash( $_POST['inquiry_content'] ?? '' );
 	$author   = sanitize_text_field( wp_unslash( $_POST['inquiry_author']   ?? '' ) );
 	$email    = sanitize_email(   wp_unslash( $_POST['inquiry_email']    ?? '' ) );
+	$phone    = inquiry_board_normalize_phone( sanitize_text_field( wp_unslash( $_POST['inquiry_phone'] ?? '' ) ) );
 	$password = (string) ( $_POST['inquiry_password'] ?? '' );
 	$cat_slug = sanitize_key(     wp_unslash( $_POST['inquiry_category'] ?? '' ) );
 
@@ -138,6 +139,9 @@ function inquiry_board_handle_submit(): void {
 	}
 	if ( ! is_email( $email ) ) {
 		$errors[] = __( '올바른 이메일을 입력해 주세요.', 'wp-qna-board' );
+	}
+	if ( $phone === '' ) {
+		$errors[] = __( '연락처를 숫자 9~15자리로 입력해 주세요. (예: 010-1234-5678)', 'wp-qna-board' );
 	}
 	$is_private = inquiry_board_is_private_submission( $opts, $_POST['inquiry_visibility'] ?? '' );
 
@@ -180,6 +184,7 @@ function inquiry_board_handle_submit(): void {
 
 	update_post_meta( $post_id, '_inquiry_author_name',    $author );
 	update_post_meta( $post_id, '_inquiry_author_email',   $email );
+	update_post_meta( $post_id, '_inquiry_author_phone',   $phone );
 	update_post_meta( $post_id, '_inquiry_author_ip',      $ip );
 	update_post_meta( $post_id, '_inquiry_author_ua_hash', isset( $_SERVER['HTTP_USER_AGENT'] ) ? hash( 'sha256', (string) $_SERVER['HTTP_USER_AGENT'] ) : '' );
 
@@ -192,6 +197,24 @@ function inquiry_board_handle_submit(): void {
 		: get_permalink( $post_id );
 	wp_safe_redirect( $redirect );
 	exit;
+}
+
+/**
+ * 연락처 정규화. 유효하지 않으면 빈 문자열을 돌려준다(호출부에서 검증 실패 처리).
+ *
+ * 국내 휴대폰(01x)만 `010-1234-5678` 형태로 통일하고, 지역번호·국제표기(+44 등)는
+ * 입력값을 그대로 보존한다 — 유학 문의 특성상 해외 번호가 들어온다.
+ * app.wowbiz.net 연동은 이 메타(`_inquiry_author_phone`)를 읽어간다.
+ */
+function inquiry_board_normalize_phone( string $raw ): string {
+	$digits = preg_replace( '/\D+/', '', $raw );
+	if ( strlen( $digits ) < 9 || strlen( $digits ) > 15 ) {
+		return '';
+	}
+	if ( preg_match( '/^(01\d)(\d{3,4})(\d{4})$/', $digits, $m ) ) {
+		return $m[1] . '-' . $m[2] . '-' . $m[3];
+	}
+	return trim( $raw );
 }
 
 function inquiry_board_sanitize_body( string $raw ): string {

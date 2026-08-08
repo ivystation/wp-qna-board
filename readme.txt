@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.9.0
+Stable tag: 0.10.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,13 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.10.0 =
+* feat(form): 글쓰기 폼에 **연락처(휴대폰) 필수 입력** 추가. `_inquiry_author_phone` 메타로 저장한다. app.wowbiz.net 연락처 동기화(wowbiz-sync 의 CPT 매핑 `phone`)가 이 메타를 읽어간다.
+* `inquiry_board_normalize_phone()` — 국내 휴대폰(01x)만 `010-1234-5678` 로 통일하고, 지역번호·국제표기(+44 등)는 입력값을 보존한다. 숫자 9~15자리를 벗어나면 검증 실패.
+* 알림 메일 메타 행과 편집화면 답글 메타박스 요약에 연락처를 노출한다(메일은 `tel:` 링크). 연락처 메타가 없는 기존 글은 "미입력" 으로 폴백.
+* 폼 그리드가 이름·이메일·연락처 3-up(비밀번호 필수 설정 시 4-up, ≤1024px 에서 2×2) 으로 바뀌었다.
+* test: `tests/test-phone.php` 셀프체크 (정규화 12 · 폼 렌더 3 · 메일 데이터 2).
 
 = 0.9.0 =
 * feat(form): 글쓰기 폼에 **「공개 / 비공개」 선택** 추가. **공개가 기본**이고, 비공개를 고를 때만 비밀번호 입력란이 나타난다(JS 토글 + 서버 재검증). 공개글은 비밀번호를 저장하지 않는다.

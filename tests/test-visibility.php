@@ -51,12 +51,12 @@ $check( '옵션 off: 공개/비공개 라디오 노출', str_contains( $html_fre
 $check( '옵션 off: 공개가 기본 선택', (bool) preg_match( '/value="public"[^>]*checked/', $html_free ) );
 $check( '옵션 off: 비밀번호 필드가 hidden 으로 시작', (bool) preg_match( '/class="inquiry-password-field"[^>]*hidden/', $html_free ) );
 $check( '옵션 off: 비밀번호 필드에 required 없음', ! (bool) preg_match( '/id="inq_password"[^>]*required/', $html_free ) );
-$check( '옵션 off: 2-col 그리드', str_contains( $html_free, 'inquiry-form-grid--2col' ) );
+$check( '옵션 off: 3-col 그리드(이름·이메일·연락처)', str_contains( $html_free, 'inquiry-form-grid--3col' ) );
 
 $html_forced = $render_form( 1 );
 $check( '옵션 on: 라디오 미노출', ! str_contains( $html_forced, 'name="inquiry_visibility"' ) );
 $check( '옵션 on: 비밀번호 필드 required', (bool) preg_match( '/id="inq_password"[^>]*required/', $html_forced ) );
-$check( '옵션 on: 3-col 그리드(기존 레이아웃 유지)', str_contains( $html_forced, 'inquiry-form-grid--3col' ) );
+$check( '옵션 on: 4-col 그리드(비밀번호 필드 포함)', str_contains( $html_forced, 'inquiry-form-grid--4col' ) );
 
 update_option( 'inquiry_board_settings', $saved );
 $restored = get_option( 'inquiry_board_settings', [] );

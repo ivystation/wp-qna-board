@@ -63,7 +63,7 @@ $form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts[
 	$force_private = ! empty( $opts['password_required'] );
 	?>
 
-	<div class="inquiry-form-grid inquiry-form-grid--<?php echo $force_private ? '3col' : '2col'; ?>">
+	<div class="inquiry-form-grid inquiry-form-grid--<?php echo $force_private ? '4col' : '3col'; ?>">
 		<p>
 			<label for="inq_author"><?php esc_html_e( '이름', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
 			<input type="text" id="inq_author" name="inquiry_author" required maxlength="50">
@@ -72,6 +72,12 @@ $form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts[
 		<p>
 			<label for="inq_email"><?php esc_html_e( '이메일', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
 			<input type="email" id="inq_email" name="inquiry_email" required>
+		</p>
+
+		<p>
+			<label for="inq_phone"><?php esc_html_e( '연락처', 'wp-qna-board' ); ?> <span aria-hidden="true">*</span></label>
+			<input type="tel" id="inq_phone" name="inquiry_phone" required maxlength="25"
+			       inputmode="tel" autocomplete="tel" placeholder="010-1234-5678">
 		</p>
 
 		<?php if ( $force_private ) : ?>

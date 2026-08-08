@@ -174,9 +174,19 @@
 .inquiry-form-grid--3col {
 	grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+.inquiry-form-grid--4col {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+/* 4-up 은 노트북 폭에서 필드가 너무 좁아진다 — 먼저 2×2 로 접는다. */
+@media (max-width: 1024px) {
+	.inquiry-form-grid--4col {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
 @media (max-width: 768px) {
 	.inquiry-form-grid--2col,
-	.inquiry-form-grid--3col {
+	.inquiry-form-grid--3col,
+	.inquiry-form-grid--4col {
 		grid-template-columns: 1fr;
 	}
 }

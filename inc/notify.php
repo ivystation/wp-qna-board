@@ -61,6 +61,7 @@ function inquiry_board_notify_data( int $post_id ): array {
 		'title'      => (string) $post->post_title !== '' ? (string) $post->post_title : __( '(제목 없음)', 'wp-qna-board' ),
 		'author'     => (string) get_post_meta( $post_id, '_inquiry_author_name', true ),
 		'email'      => (string) get_post_meta( $post_id, '_inquiry_author_email', true ),
+		'phone'      => (string) get_post_meta( $post_id, '_inquiry_author_phone', true ),
 		'categories' => $categories,
 		'date'       => mysql2date( 'Y-m-d H:i', $post->post_date, false ),
 		'secret'     => '' !== (string) $post->post_password,
@@ -98,6 +99,10 @@ function inquiry_board_notify_html( array $d ): string {
 		__( '작성자', 'wp-qna-board' ) => esc_html( $d['author'] !== '' ? $d['author'] : __( '익명', 'wp-qna-board' ) ),
 		__( '이메일', 'wp-qna-board' ) => $d['email'] !== ''
 			? '<a href="mailto:' . esc_attr( $d['email'] ) . '" style="color:' . $indigo . ';text-decoration:none;">' . esc_html( $d['email'] ) . '</a>'
+			: '<span style="color:' . $muted . ';">' . esc_html__( '미입력', 'wp-qna-board' ) . '</span>',
+		// 연락처는 v0.10.0 부터 필수 — 그 이전 글에는 메타가 없으므로 "미입력" 으로 폴백한다.
+		__( '연락처', 'wp-qna-board' ) => $d['phone'] !== ''
+			? '<a href="tel:' . esc_attr( preg_replace( '/[^\d+]+/', '', $d['phone'] ) ) . '" style="color:' . $indigo . ';text-decoration:none;">' . esc_html( $d['phone'] ) . '</a>'
 			: '<span style="color:' . $muted . ';">' . esc_html__( '미입력', 'wp-qna-board' ) . '</span>',
 		__( '카테고리', 'wp-qna-board' ) => esc_html( $d['categories'] ? implode( ', ', $d['categories'] ) : '—' ),
 		__( '등록일시', 'wp-qna-board' ) => esc_html( $d['date'] ),

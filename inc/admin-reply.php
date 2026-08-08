@@ -105,6 +105,7 @@ function inquiry_board_render_reply_metabox( $post ): void {
 
 	$author_name  = (string) get_post_meta( $post->ID, '_inquiry_author_name', true );
 	$author_email = (string) get_post_meta( $post->ID, '_inquiry_author_email', true );
+	$author_phone = (string) get_post_meta( $post->ID, '_inquiry_author_phone', true );
 	$display_name = $author_name !== '' ? $author_name : __( '익명', 'wp-qna-board' );
 
 	$terms    = get_the_terms( $post->ID, 'inquiry_category' );
@@ -164,6 +165,9 @@ function inquiry_board_render_reply_metabox( $post ): void {
 		<span><strong><?php esc_html_e( '작성자:', 'wp-qna-board' ); ?></strong> <?php echo esc_html( $display_name ); ?></span>
 		<?php if ( $author_email !== '' ) : ?>
 			<span><strong><?php esc_html_e( '이메일:', 'wp-qna-board' ); ?></strong> <?php echo esc_html( $author_email ); ?></span>
+		<?php endif; ?>
+		<?php if ( $author_phone !== '' ) : ?>
+			<span><strong><?php esc_html_e( '연락처:', 'wp-qna-board' ); ?></strong> <?php echo esc_html( $author_phone ); ?></span>
 		<?php endif; ?>
 		<span><strong><?php esc_html_e( '카테고리:', 'wp-qna-board' ); ?></strong> <?php echo esc_html( $cat_name ); ?></span>
 		<span><strong><?php esc_html_e( '상태:', 'wp-qna-board' ); ?></strong>
