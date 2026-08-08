@@ -202,8 +202,10 @@
 	line-height: 1.5;
 }
 
-/* 공개/비공개 선택 + 조건부 비밀번호 필드 (v0.9.0) */
-.inquiry-visibility {
+/* 공개/비공개 선택 + 조건부 비밀번호 필드 (v0.9.0)
+   동의 체크박스(v0.11.0)도 같은 카드 스타일을 쓴다 — 선택지가 2-up 이냐 1-up 이냐만 다르다. */
+.inquiry-visibility,
+.inquiry-consent {
 	margin: 0 0 var(--inq-gap-md);
 	padding: 0;
 	border: 0;
@@ -211,7 +213,8 @@
 	flex-wrap: wrap;
 	gap: var(--inq-gap-sm, 8px);
 }
-.inquiry-visibility legend {
+.inquiry-visibility legend,
+.inquiry-consent legend {
 	width: 100%;
 	padding: 0;
 	margin-bottom: 6px;
@@ -219,7 +222,8 @@
 	color: var(--inq-ink-mute);
 	letter-spacing: -0.39px;
 }
-.inquiry-visibility-opt {
+.inquiry-visibility-opt,
+.inquiry-consent-opt {
 	display: flex;
 	align-items: flex-start;
 	gap: 8px;
@@ -230,21 +234,28 @@
 	cursor: pointer;
 	background: #fff;
 }
-.inquiry-visibility-opt:hover { border-color: var(--inq-primary-subdued); }
-.inquiry-visibility-opt input { margin-top: 3px; }
-.inquiry-visibility-opt strong {
+/* 동의 항목은 설명이 길어 2-up 으로 쪼개면 읽기 어렵다 — 항상 한 줄 전체. */
+.inquiry-consent-opt { flex-basis: 100%; }
+.inquiry-visibility-opt:hover,
+.inquiry-consent-opt:hover { border-color: var(--inq-primary-subdued); }
+.inquiry-visibility-opt input,
+.inquiry-consent-opt input { margin-top: 3px; }
+.inquiry-visibility-opt strong,
+.inquiry-consent-opt strong {
 	display: block;
 	font-size: var(--inq-font-body, 15px);
 	color: var(--inq-ink);
 	font-weight: 500;
 }
-.inquiry-visibility-opt small {
+.inquiry-visibility-opt small,
+.inquiry-consent-opt small {
 	display: block;
 	margin-top: 2px;
 	font-size: var(--inq-font-caption);
 	color: var(--inq-ink-mute);
 	line-height: 1.45;
 }
+.inquiry-consent-opt a { color: var(--inq-primary); }
 /* 테마가 [hidden] 을 덮어쓰는 경우가 있어 명시적으로 숨긴다. */
 .inquiry-form .inquiry-password-field[hidden] { display: none !important; }
 .inquiry-password-field small {

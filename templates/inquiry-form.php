@@ -169,6 +169,39 @@ $form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts[
 		<ul class="inquiry-file-list" aria-live="polite"></ul>
 	</p>
 
+	<?php
+	/**
+	 * 동의 — 개인정보 수집·이용(필수)과 마케팅 정보 수신(선택)을 **분리해서** 받는다.
+	 * 하나로 묶으면 문의하려면 어차피 체크해야 하므로 전원이 마케팅 수신 동의로 집계된다.
+	 * 둘 다 기본 미체크(사전 선택된 동의는 유효한 동의로 보지 않는다).
+	 */
+	$privacy_url = get_privacy_policy_url();
+	?>
+	<fieldset class="inquiry-consent">
+		<legend><?php esc_html_e( '동의', 'wp-qna-board' ); ?></legend>
+
+		<label class="inquiry-consent-opt">
+			<input type="checkbox" name="inquiry_privacy_consent" value="1" required>
+			<span>
+				<strong><?php esc_html_e( '[필수] 개인정보 수집·이용 동의', 'wp-qna-board' ); ?></strong>
+				<small>
+					<?php esc_html_e( '문의 접수와 답변 안내를 위해 이름·이메일·연락처를 수집하며, 문의 처리 완료 후 관련 법령에 따라 보관·파기합니다.', 'wp-qna-board' ); ?>
+					<?php if ( $privacy_url ) : ?>
+						<a href="<?php echo esc_url( $privacy_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( '개인정보취급방침 보기', 'wp-qna-board' ); ?></a>
+					<?php endif; ?>
+				</small>
+			</span>
+		</label>
+
+		<label class="inquiry-consent-opt">
+			<input type="checkbox" name="inquiry_marketing_consent" value="1">
+			<span>
+				<strong><?php esc_html_e( '[선택] 마케팅 정보 수신 동의', 'wp-qna-board' ); ?></strong>
+				<small><?php esc_html_e( '유학 설명회·모집 일정 등 광고성 정보를 이메일·문자로 받아봅니다. 동의하지 않아도 문의 접수와 답변에는 제한이 없으며, 언제든 수신을 거부할 수 있습니다.', 'wp-qna-board' ); ?></small>
+			</span>
+		</label>
+	</fieldset>
+
 	<?php if ( $site_key ) : ?>
 		<input type="hidden" id="inq_recaptcha" name="g-recaptcha-response" value="">
 		<script src="https://www.google.com/recaptcha/api.js?render=<?php echo esc_attr( $site_key ); ?>"></script>

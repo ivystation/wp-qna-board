@@ -62,6 +62,7 @@ function inquiry_board_notify_data( int $post_id ): array {
 		'author'     => (string) get_post_meta( $post_id, '_inquiry_author_name', true ),
 		'email'      => (string) get_post_meta( $post_id, '_inquiry_author_email', true ),
 		'phone'      => (string) get_post_meta( $post_id, '_inquiry_author_phone', true ),
+		'marketing'  => '1' === (string) get_post_meta( $post_id, '_inquiry_marketing_consent', true ),
 		'categories' => $categories,
 		'date'       => mysql2date( 'Y-m-d H:i', $post->post_date, false ),
 		'secret'     => '' !== (string) $post->post_password,
@@ -105,6 +106,10 @@ function inquiry_board_notify_html( array $d ): string {
 			? '<a href="tel:' . esc_attr( preg_replace( '/[^\d+]+/', '', $d['phone'] ) ) . '" style="color:' . $indigo . ';text-decoration:none;">' . esc_html( $d['phone'] ) . '</a>'
 			: '<span style="color:' . $muted . ';">' . esc_html__( '미입력', 'wp-qna-board' ) . '</span>',
 		__( '카테고리', 'wp-qna-board' ) => esc_html( $d['categories'] ? implode( ', ', $d['categories'] ) : '—' ),
+		// 광고성 정보 발송 대상 판단 근거 — 동의한 건에만 마케팅 발송이 가능하다.
+		__( '마케팅 수신', 'wp-qna-board' ) => $d['marketing']
+			? '<span style="color:#166534;font-weight:600;">' . esc_html__( '동의', 'wp-qna-board' ) . '</span>'
+			: '<span style="color:' . $muted . ';">' . esc_html__( '미동의', 'wp-qna-board' ) . '</span>',
 		__( '등록일시', 'wp-qna-board' ) => esc_html( $d['date'] ),
 	];
 

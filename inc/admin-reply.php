@@ -106,6 +106,7 @@ function inquiry_board_render_reply_metabox( $post ): void {
 	$author_name  = (string) get_post_meta( $post->ID, '_inquiry_author_name', true );
 	$author_email = (string) get_post_meta( $post->ID, '_inquiry_author_email', true );
 	$author_phone = (string) get_post_meta( $post->ID, '_inquiry_author_phone', true );
+	$marketing_ok = '1' === (string) get_post_meta( $post->ID, '_inquiry_marketing_consent', true );
 	$display_name = $author_name !== '' ? $author_name : __( '익명', 'wp-qna-board' );
 
 	$terms    = get_the_terms( $post->ID, 'inquiry_category' );
@@ -169,6 +170,11 @@ function inquiry_board_render_reply_metabox( $post ): void {
 		<?php if ( $author_phone !== '' ) : ?>
 			<span><strong><?php esc_html_e( '연락처:', 'wp-qna-board' ); ?></strong> <?php echo esc_html( $author_phone ); ?></span>
 		<?php endif; ?>
+		<span><strong><?php esc_html_e( '마케팅 수신:', 'wp-qna-board' ); ?></strong>
+			<span class="ib-badge <?php echo $marketing_ok ? 'ib-badge-done' : 'ib-badge-wait'; ?>">
+				<?php echo $marketing_ok ? esc_html__( '동의', 'wp-qna-board' ) : esc_html__( '미동의', 'wp-qna-board' ); ?>
+			</span>
+		</span>
 		<span><strong><?php esc_html_e( '카테고리:', 'wp-qna-board' ); ?></strong> <?php echo esc_html( $cat_name ); ?></span>
 		<span><strong><?php esc_html_e( '상태:', 'wp-qna-board' ); ?></strong>
 			<span class="ib-badge <?php echo $answered ? 'ib-badge-done' : 'ib-badge-wait'; ?>">

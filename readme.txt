@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.10.2
+Stable tag: 0.11.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,15 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.11.0 =
+* feat(form): 글쓰기 폼에 동의 체크박스 2개 추가 — **[필수] 개인정보 수집·이용** / **[선택] 마케팅 정보 수신**. `_inquiry_privacy_consent` · `_inquiry_marketing_consent` 메타(`'1'`/`'0'`)로 저장한다. `'1'` 은 wowbiz-sync 가 동의로 인정하는 값이라 CPT 매핑의 `consent` 에 그대로 연결할 수 있다.
+* **두 항목을 분리**한다. 하나로 묶으면 문의하려면 어차피 체크해야 하므로 **전원이 마케팅 수신 동의로 집계**되어 광고성 발송 대상 판단이 무의미해진다.
+* **둘 다 기본 미체크**. 개인정보 동의만 `required` 이고, 마케팅 미동의로도 문의 접수·답변에 제한이 없다. 서버에서도 개인정보 동의를 재검증한다(폼 우회 제출 방어).
+* 개인정보취급방침 링크는 WP 표준 `get_privacy_policy_url()` 로 출력한다. 사이트의 「설정 → 개인정보」에 방침 페이지가 지정돼 있어야 링크가 나온다(미지정이면 문구만 노출).
+* 알림 메일 메타 행과 편집화면 답글 요약에 「마케팅 수신」 동의/미동의를 표시한다. 메타가 없는 기존 글은 **미동의**로 읽는다.
+* 동의 카드는 기존 공개/비공개 선택과 같은 스타일을 공유하되(`.inquiry-consent-opt` 를 셀렉터 그룹에 추가) 설명이 길어 항상 1-up 으로 둔다.
+* test: `tests/test-consent.php` 셀프체크 (폼 렌더 9 · CSS 1 · 알림 메일 4). **기본 미체크 회귀를 잡는 항목 포함.**
 
 = 0.10.2 =
 * refine(form): 제목·카테고리를 **2-up 인라인**으로 배치(기존 세로 스택). 기존 `.inquiry-form-grid--2col` 을 재사용하므로 CSS 변경은 없고, ≤768px 에서는 다른 그리드와 함께 1-col 로 접힌다.

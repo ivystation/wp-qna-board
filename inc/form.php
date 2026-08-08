@@ -126,6 +126,8 @@ function inquiry_board_handle_submit(): void {
 	$phone    = inquiry_board_normalize_phone( sanitize_text_field( wp_unslash( $_POST['inquiry_phone'] ?? '' ) ) );
 	$password = (string) ( $_POST['inquiry_password'] ?? '' );
 	$cat_slug = sanitize_key(     wp_unslash( $_POST['inquiry_category'] ?? '' ) );
+	$privacy_ok   = ! empty( $_POST['inquiry_privacy_consent'] );
+	$marketing_ok = ! empty( $_POST['inquiry_marketing_consent'] );
 
 	$errors = [];
 	if ( $title === '' || mb_strlen( $title ) > 200 ) {
@@ -142,6 +144,9 @@ function inquiry_board_handle_submit(): void {
 	}
 	if ( $phone === '' ) {
 		$errors[] = __( '연락처를 숫자 9~15자리로 입력해 주세요. (예: 010-1234-5678)', 'wp-qna-board' );
+	}
+	if ( ! $privacy_ok ) {
+		$errors[] = __( '개인정보 수집·이용에 동의해 주셔야 문의를 접수할 수 있습니다.', 'wp-qna-board' );
 	}
 	$is_private = inquiry_board_is_private_submission( $opts, $_POST['inquiry_visibility'] ?? '' );
 
@@ -185,6 +190,10 @@ function inquiry_board_handle_submit(): void {
 	update_post_meta( $post_id, '_inquiry_author_name',    $author );
 	update_post_meta( $post_id, '_inquiry_author_email',   $email );
 	update_post_meta( $post_id, '_inquiry_author_phone',   $phone );
+	// 동의 증빙 — 값 '1'/'0' 은 wowbiz-sync 가 그대로 동의/비동의로 읽는다(허용값에 '1' 포함).
+	// 동의 시각은 글의 post_date 가 곧 제출 시각이므로 따로 두지 않는다.
+	update_post_meta( $post_id, '_inquiry_privacy_consent',   '1' );
+	update_post_meta( $post_id, '_inquiry_marketing_consent', $marketing_ok ? '1' : '0' );
 	update_post_meta( $post_id, '_inquiry_author_ip',      $ip );
 	update_post_meta( $post_id, '_inquiry_author_ua_hash', isset( $_SERVER['HTTP_USER_AGENT'] ) ? hash( 'sha256', (string) $_SERVER['HTTP_USER_AGENT'] ) : '' );
 
