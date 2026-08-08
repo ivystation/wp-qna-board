@@ -26,8 +26,11 @@ function inquiry_board_register_cpt(): void {
 		'labels'              => $labels,
 		'public'              => true,
 		'has_archive'         => false, // /inquiries/ 는 별도 페이지가 차지한다.
-		'show_in_rest'        => true,
-		'rest_base'           => 'inquiry',
+		// 익명 문의는 대부분 비밀글이다. show_in_rest=true 로 두면 WP REST 가 비밀글의
+		// 제목과 전건 목록을 비로그인에게 그대로 노출한다(본문은 가려도 제목은 raw).
+		// 헤드리스·에디터에서 inquiry REST 를 쓰지 않으므로 비공개로 둔다.
+		// 편집 화면은 v0.7.0 에서 Classic Editor 로 열도록 필터가 걸려 있어 영향 없다.
+		'show_in_rest'        => false,
 		'menu_icon'           => 'dashicons-format-chat',
 		'menu_position'       => 22,
 		'supports'            => [ 'title', 'editor', 'custom-fields', 'comments', 'author' ],

@@ -4,7 +4,7 @@ Tags: q-and-a, anonymous, board, kboard-migration, password-protected
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
-Stable tag: 0.11.0
+Stable tag: 0.12.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,13 @@ KBoard `category1`/`category2` 와 새 5개 슬롯의 매핑은 `inc/migration-m
 `secret=1` 인데 비번 없는 글은 무작위 8자 영숫자로 발급되고 `wp-content/private/inquiry/inquiry-migration-passwords.csv` 에 산출된다 (`.htaccess deny` 자동).
 
 == Changelog ==
+
+= 0.12.0 =
+* security(spam): 스팸 봇 방어를 다층으로 강화. **Cloudflare Turnstile** 을 폼에 통합 — `simple-cloudflare-turnstile` 플러그인의 사이트 전역 키(`cfturnstile_key`/`cfturnstile_secret`)를 재사용해 위젯을 노출하고 서버에서 siteverify 로 토큰을 재검증한다. 방어 우선순위는 Turnstile → reCAPTCHA(둘 중 사이트에 설정된 것). Turnstile 미설치 사이트에서는 기존 reCAPTCHA 동작 유지.
+* security(spam): **time-trap** 추가. 폼 렌더 시각을 HMAC 서명해 hidden 필드로 내보내고, 제출까지 3초 미만(즉시 POST)·1시간 초과면 거부한다. JS 없이 폼을 직접 POST 하는 봇을 걸러낸다.
+* security(privacy): **inquiry CPT 를 REST 에서 비공개**(`show_in_rest=false`). 기존에는 `/wp-json/wp/v2/inquiry` 로 **비밀글 제목과 전건 목록이 비로그인에게 노출**됐다(본문은 가려지지만 제목은 raw). 헤드리스·에디터가 inquiry REST 를 쓰지 않으므로 영향 없다(편집은 v0.7.0 부터 Classic Editor).
+* test: `tests/test-security.php` — time-trap 서명·체류시간, Turnstile 분기, REST 비공개, 폼 렌더 검증.
+* 참고: **author enumeration**(`?author=N`·`/wp-json/wp/v2/users`) 차단은 사이트 전역 사안이라 별도 mu-plugin(`ivy-block-user-enum`)으로 처리한다.
 
 = 0.11.0 =
 * feat(form): 글쓰기 폼에 동의 체크박스 2개 추가 — **[필수] 개인정보 수집·이용** / **[선택] 마케팅 정보 수신**. `_inquiry_privacy_consent` · `_inquiry_marketing_consent` 메타(`'1'`/`'0'`)로 저장한다. `'1'` 은 wowbiz-sync 가 동의로 인정하는 값이라 CPT 매핑의 `consent` 에 그대로 연결할 수 있다.

@@ -114,8 +114,19 @@ function inquiry_board_handle_submit(): void {
 	}
 	set_transient( $throttle, 1, 60 );
 
+	// 사람이 폼을 채우는 데는 최소 수 초가 걸린다. 서명된 렌더 시각과의 간격이
+	// 너무 짧으면(즉시 POST) 스크립트 제출로 보고 거부한다. JS 없는 봇을 걸러낸다.
+	if ( ! inquiry_board_form_timestamp_ok( (string) ( $_POST['inquiry_ts'] ?? '' ) ) ) {
+		inquiry_board_form_die( __( '잘못된 요청입니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.', 'wp-qna-board' ) );
+	}
+
 	$opts = get_option( 'inquiry_board_settings', [] );
-	if ( ! inquiry_board_verify_recaptcha( $_POST['g-recaptcha-response'] ?? '', $opts ) ) {
+	// 봇 방어 우선순위: Cloudflare Turnstile → reCAPTCHA. 사이트에 설정된 것을 쓴다.
+	$turnstile = inquiry_board_verify_turnstile();
+	if ( false === $turnstile ) {
+		inquiry_board_form_die( __( '자동 등록 방지 확인에 실패했습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.', 'wp-qna-board' ) );
+	}
+	if ( null === $turnstile && ! inquiry_board_verify_recaptcha( $_POST['g-recaptcha-response'] ?? '', $opts ) ) {
 		inquiry_board_form_die( __( 'reCAPTCHA 검증에 실패했습니다.', 'wp-qna-board' ) );
 	}
 
@@ -288,6 +299,69 @@ function inquiry_board_handle_uploads( int $post_id, array $opts ): void {
 	if ( $saved_ids ) {
 		update_post_meta( $post_id, '_inquiry_attachments', $saved_ids );
 	}
+}
+
+/**
+ * Cloudflare Turnstile site key. simple-cloudflare-turnstile 플러그인의 옵션을 재사용한다.
+ * 미설치·미설정이면 빈 문자열(→ 위젯 미노출, 서버 검증도 skip).
+ */
+function inquiry_board_turnstile_sitekey(): string {
+	return trim( (string) get_option( 'cfturnstile_key', '' ) );
+}
+
+/**
+ * Turnstile 토큰 서버 검증.
+ *  - null  : 이 사이트는 Turnstile 미설정(secret 없음) → 검증 대상 아님(reCAPTCHA 로 폴백)
+ *  - false : 설정돼 있으나 토큰 없음·검증 실패 → 제출 거부
+ *  - true  : 통과
+ */
+function inquiry_board_verify_turnstile(): ?bool {
+	$secret = trim( (string) get_option( 'cfturnstile_secret', '' ) );
+	if ( $secret === '' ) {
+		return null;
+	}
+	$token = isset( $_POST['cf-turnstile-response'] ) ? sanitize_text_field( wp_unslash( $_POST['cf-turnstile-response'] ) ) : '';
+	if ( $token === '' ) {
+		return false;
+	}
+	$res = wp_remote_post( 'https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+		'timeout' => 5,
+		'body'    => [
+			'secret'   => $secret,
+			'response' => $token,
+			'remoteip' => inquiry_board_get_client_ip(),
+		],
+	] );
+	if ( is_wp_error( $res ) ) {
+		return false;
+	}
+	$body = json_decode( (string) wp_remote_retrieve_body( $res ), true );
+	return ! empty( $body['success'] );
+}
+
+/**
+ * 폼 렌더 시각을 HMAC 서명해 hidden 필드로 내보낸다(위조 방지). time-trap 의 짝.
+ */
+function inquiry_board_form_timestamp_field(): string {
+	$ts  = (string) time();
+	$sig = hash_hmac( 'sha256', $ts, inquiry_board_get_secret() );
+	return '<input type="hidden" name="inquiry_ts" value="' . esc_attr( $ts . '.' . $sig ) . '">';
+}
+
+/**
+ * 렌더~제출 간격 검사. 서명 위조 불가 + 3초 미만(즉시 제출)·1시간 초과(오래된 폼) 거부.
+ */
+function inquiry_board_form_timestamp_ok( string $raw ): bool {
+	$parts = explode( '.', $raw, 2 );
+	if ( count( $parts ) !== 2 ) {
+		return false;
+	}
+	list( $ts, $sig ) = $parts;
+	if ( ! ctype_digit( $ts ) || ! hash_equals( hash_hmac( 'sha256', $ts, inquiry_board_get_secret() ), $sig ) ) {
+		return false;
+	}
+	$elapsed = time() - (int) $ts;
+	return $elapsed >= 3 && $elapsed <= HOUR_IN_SECONDS;
 }
 
 function inquiry_board_verify_recaptcha( string $token, array $opts ): bool {

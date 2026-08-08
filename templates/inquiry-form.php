@@ -41,6 +41,7 @@ $form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts[
 		<input type="hidden" name="inquiry_redirect" value="<?php echo esc_attr( $redirect ); ?>">
 	<?php endif; ?>
 	<input type="text" name="inquiry_hp" value="" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;">
+	<?php echo inquiry_board_form_timestamp_field(); // 서명된 렌더 시각(time-trap) — 이미 escape 됨 ?>
 
 	<div class="inquiry-form-grid inquiry-form-grid--2col">
 		<p>
@@ -202,7 +203,17 @@ $form_title = isset( $atts['title'] ) && $atts['title'] !== '' ? (string) $atts[
 		</label>
 	</fieldset>
 
-	<?php if ( $site_key ) : ?>
+	<?php
+	// 자동 등록 방지 — Cloudflare Turnstile 이 설정돼 있으면 위젯을 노출한다(사이트 전역 키 재사용).
+	// 서버는 inc/form.php 의 inquiry_board_verify_turnstile() 로 토큰을 재검증한다.
+	$turnstile_key = function_exists( 'inquiry_board_turnstile_sitekey' ) ? inquiry_board_turnstile_sitekey() : '';
+	?>
+	<?php if ( $turnstile_key ) : ?>
+		<p class="inquiry-turnstile">
+			<div class="cf-turnstile" data-sitekey="<?php echo esc_attr( $turnstile_key ); ?>" data-theme="light" data-language="ko"></div>
+		</p>
+		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+	<?php elseif ( $site_key ) : ?>
 		<input type="hidden" id="inq_recaptcha" name="g-recaptcha-response" value="">
 		<script src="https://www.google.com/recaptcha/api.js?render=<?php echo esc_attr( $site_key ); ?>"></script>
 		<script>
