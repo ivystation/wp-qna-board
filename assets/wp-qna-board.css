@@ -292,6 +292,7 @@
 
 .inquiry-form input[type="text"],
 .inquiry-form input[type="email"],
+.inquiry-form input[type="tel"],
 .inquiry-form input[type="password"],
 .inquiry-form select,
 .inquiry-form textarea,
@@ -337,6 +338,7 @@
 }
 .inquiry-form input[type="text"]:focus,
 .inquiry-form input[type="email"]:focus,
+.inquiry-form input[type="tel"]:focus,
 .inquiry-form input[type="password"]:focus,
 .inquiry-form select:focus,
 .inquiry-form textarea:focus,

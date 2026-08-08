@@ -46,6 +46,12 @@ $check( '폼에 inquiry_phone 필드 존재', str_contains( $html, 'name="inquir
 $check( '연락처 필드 required',         (bool) preg_match( '/id="inq_phone"[^>]*required/', $html ) );
 $check( 'type=tel',                    (bool) preg_match( '/id="inq_phone"[^>]*type="tel"|type="tel"[^>]*id="inq_phone"/', $html ) );
 
+// 폼 입력 스타일은 input[type=…] 화이트리스트 셀렉터다. 새 타입이 목록에서 빠지면
+// 그 필드만 폭·테두리·포커스 링이 통째로 빠진 채 렌더된다(v0.10.0 에서 실제로 발생).
+$css = (string) file_get_contents( INQUIRY_BOARD_DIR . 'assets/wp-qna-board.css' );
+$check( 'CSS 기본 규칙에 input[type="tel"]',  str_contains( $css, '.inquiry-form input[type="tel"],' ) );
+$check( 'CSS focus 규칙에 input[type="tel"]', str_contains( $css, '.inquiry-form input[type="tel"]:focus,' ) );
+
 // 3. 알림 메일 — 메타에 저장된 연락처가 데이터·HTML 양쪽에 실리는지.
 //    기존 셀프체크 픽스처(draft)를 재사용한다. 없으면 이 구간은 건너뛴다.
 $found = get_posts( [
