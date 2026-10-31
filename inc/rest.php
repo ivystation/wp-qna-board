@@ -5,7 +5,7 @@
  * inquiry CPT 는 `show_in_rest=false` 그대로 둔다(v0.12.0: wp/v2 가 비밀글 제목·전건을 노출).
  * 대신 화면에 필요한 값만 골라 내보내는 전용 라우트를 둔다 — 기존 목록 화면이 보여 주는 것 이상은 나가지 않는다.
  *
- *   GET  /qna/v1/inquiries?page=&category=   목록 (번호·카테고리·제목·작성자명·작성일·비밀글 여부·답변 수)
+ *   GET  /qna/v1/inquiries?page=&category=   목록 (번호·카테고리·제목·작성자명·작성일·비밀글 여부·답변 수 answer_count)
  *   GET  /qna/v1/inquiry?slug=               상세 (비밀글은 본문·답변 없이 protected=true)
  *   POST /qna/v1/inquiry/{id}/unlock         비밀글 열기 {password} — IP 당 10분 10회
  *   GET  /qna/v1/form                        작성 폼 정보 (카테고리·서명 시각·Turnstile 사이트키·비밀글 설정)
@@ -85,7 +85,7 @@ function inquiry_board_rest_summary( WP_Post $post ): array {
 		'author'    => $name !== '' ? $name : __( '익명', 'wp-qna-board' ),
 		'date'      => mysql_to_rfc3339( $post->post_date ),
 		'protected' => $post->post_password !== '',
-		'answers'   => (int) get_comments_number( $post->ID ),
+		'answer_count' => (int) get_comments_number( $post->ID ),
 	];
 }
 
