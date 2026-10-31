@@ -103,42 +103,66 @@ add_action( 'admin_post_inquiry_submit',        'inquiry_board_handle_submit' );
 function inquiry_board_handle_submit(): void {
 	check_admin_referer( INQUIRY_BOARD_NONCE_ACTION, INQUIRY_BOARD_NONCE_FIELD );
 
-	if ( ! empty( $_POST['inquiry_hp'] ) ) {
-		inquiry_board_form_die( __( '잘못된 요청입니다.', 'wp-qna-board' ) );
+	$post_id = inquiry_board_create_inquiry( wp_unslash( $_POST ) );
+	if ( is_wp_error( $post_id ) ) {
+		inquiry_board_form_die( $post_id->get_error_message() );
+	}
+	inquiry_board_handle_uploads( $post_id, get_option( 'inquiry_board_settings', [] ) );
+	inquiry_board_issue_session( $post_id );
+
+	$redirect = ! empty( $_POST['inquiry_redirect'] )
+		? esc_url_raw( wp_unslash( $_POST['inquiry_redirect'] ) )
+		: get_permalink( $post_id );
+	wp_safe_redirect( $redirect );
+	exit;
+}
+
+/**
+ * 문의 1건 등록 — 폼(admin-post)과 헤드리스 REST(`qna/v1`, inc/rest.php) 공용.
+ *
+ * 스팸 방어(허니팟·IP 60초·서명 시각·Turnstile)와 입력 검증을 모두 여기서 한다 — 진입점마다
+ * 따로 두면 한쪽만 막힌다. `$in` 은 unslash 된 입력(폼 필드 이름 그대로). 실패는 WP_Error.
+ *
+ * @return int|WP_Error 새 글 ID
+ */
+function inquiry_board_create_inquiry( array $in ) {
+
+	if ( ! empty( $in['inquiry_hp'] ) ) {
+		return new WP_Error( 'inquiry_spam', __( '잘못된 요청입니다.', 'wp-qna-board' ) );
 	}
 
 	$ip       = inquiry_board_get_client_ip();
 	$throttle = 'inq_form_' . md5( $ip );
 	if ( get_transient( $throttle ) ) {
-		inquiry_board_form_die( __( '잠시 후 다시 시도해 주세요.', 'wp-qna-board' ) );
+		return new WP_Error( 'inquiry_throttled', __( '잠시 후 다시 시도해 주세요.', 'wp-qna-board' ) );
 	}
 	set_transient( $throttle, 1, 60 );
 
 	// 사람이 폼을 채우는 데는 최소 수 초가 걸린다. 서명된 렌더 시각과의 간격이
 	// 너무 짧으면(즉시 POST) 스크립트 제출로 보고 거부한다. JS 없는 봇을 걸러낸다.
-	if ( ! inquiry_board_form_timestamp_ok( (string) ( $_POST['inquiry_ts'] ?? '' ) ) ) {
-		inquiry_board_form_die( __( '잘못된 요청입니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.', 'wp-qna-board' ) );
+	if ( ! inquiry_board_form_timestamp_ok( (string) ( $in['inquiry_ts'] ?? '' ) ) ) {
+		return new WP_Error( 'inquiry_timestamp', __( '잘못된 요청입니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.', 'wp-qna-board' ) );
 	}
 
 	$opts = get_option( 'inquiry_board_settings', [] );
 	// 봇 방어 우선순위: Cloudflare Turnstile → reCAPTCHA. 사이트에 설정된 것을 쓴다.
-	$turnstile = inquiry_board_verify_turnstile();
+	$turnstile = inquiry_board_verify_turnstile( (string) ( $in['cf-turnstile-response'] ?? '' ) );
 	if ( false === $turnstile ) {
-		inquiry_board_form_die( __( '자동 등록 방지 확인에 실패했습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.', 'wp-qna-board' ) );
+		return new WP_Error( 'inquiry_turnstile', __( '자동 등록 방지 확인에 실패했습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.', 'wp-qna-board' ) );
 	}
-	if ( null === $turnstile && ! inquiry_board_verify_recaptcha( $_POST['g-recaptcha-response'] ?? '', $opts ) ) {
-		inquiry_board_form_die( __( 'reCAPTCHA 검증에 실패했습니다.', 'wp-qna-board' ) );
+	if ( null === $turnstile && ! inquiry_board_verify_recaptcha( (string) ( $in['g-recaptcha-response'] ?? '' ), $opts ) ) {
+		return new WP_Error( 'inquiry_recaptcha', __( 'reCAPTCHA 검증에 실패했습니다.', 'wp-qna-board' ) );
 	}
 
-	$title    = sanitize_text_field( wp_unslash( $_POST['inquiry_title']    ?? '' ) );
-	$body     = wp_unslash( $_POST['inquiry_content'] ?? '' );
-	$author   = sanitize_text_field( wp_unslash( $_POST['inquiry_author']   ?? '' ) );
-	$email    = sanitize_email(   wp_unslash( $_POST['inquiry_email']    ?? '' ) );
-	$phone    = inquiry_board_normalize_phone( sanitize_text_field( wp_unslash( $_POST['inquiry_phone'] ?? '' ) ) );
-	$password = (string) ( $_POST['inquiry_password'] ?? '' );
-	$cat_slug = sanitize_key(     wp_unslash( $_POST['inquiry_category'] ?? '' ) );
-	$privacy_ok   = ! empty( $_POST['inquiry_privacy_consent'] );
-	$marketing_ok = ! empty( $_POST['inquiry_marketing_consent'] );
+	$title    = sanitize_text_field( (string) ( $in['inquiry_title']    ?? '' ) );
+	$body     = (string) ( $in['inquiry_content'] ?? '' );
+	$author   = sanitize_text_field( (string) ( $in['inquiry_author']   ?? '' ) );
+	$email    = sanitize_email(      (string) ( $in['inquiry_email']    ?? '' ) );
+	$phone    = inquiry_board_normalize_phone( sanitize_text_field( (string) ( $in['inquiry_phone'] ?? '' ) ) );
+	$password = (string) ( $in['inquiry_password'] ?? '' );
+	$cat_slug = sanitize_key(        (string) ( $in['inquiry_category'] ?? '' ) );
+	$privacy_ok   = ! empty( $in['inquiry_privacy_consent'] );
+	$marketing_ok = ! empty( $in['inquiry_marketing_consent'] );
 
 	$errors = [];
 	if ( $title === '' || mb_strlen( $title ) > 200 ) {
@@ -159,7 +183,7 @@ function inquiry_board_handle_submit(): void {
 	if ( ! $privacy_ok ) {
 		$errors[] = __( '개인정보 수집·이용에 동의해 주셔야 문의를 접수할 수 있습니다.', 'wp-qna-board' );
 	}
-	$is_private = inquiry_board_is_private_submission( $opts, $_POST['inquiry_visibility'] ?? '' );
+	$is_private = inquiry_board_is_private_submission( $opts, (string) ( $in['inquiry_visibility'] ?? '' ) );
 
 	if ( $is_private ) {
 		$min_pwd = (int) ( $opts['password_min_length'] ?? 4 );
@@ -175,7 +199,7 @@ function inquiry_board_handle_submit(): void {
 		$errors[] = __( '카테고리를 선택해 주세요.', 'wp-qna-board' );
 	}
 	if ( $errors ) {
-		inquiry_board_form_die( implode( '<br>', $errors ) );
+		return new WP_Error( 'inquiry_invalid', implode( '<br>', $errors ) );
 	}
 
 	// 본문 텍스트 전용 정제: <p>/<br>/<a> 만 허용.
@@ -193,7 +217,7 @@ function inquiry_board_handle_submit(): void {
 	], true );
 
 	if ( is_wp_error( $post_id ) ) {
-		inquiry_board_form_die( $post_id->get_error_message() );
+		return $post_id;
 	}
 
 	wp_set_object_terms( $post_id, [ (int) $cat_term->term_id ], 'inquiry_category', false );
@@ -208,15 +232,8 @@ function inquiry_board_handle_submit(): void {
 	update_post_meta( $post_id, '_inquiry_author_ip',      $ip );
 	update_post_meta( $post_id, '_inquiry_author_ua_hash', isset( $_SERVER['HTTP_USER_AGENT'] ) ? hash( 'sha256', (string) $_SERVER['HTTP_USER_AGENT'] ) : '' );
 
-	inquiry_board_handle_uploads( $post_id, $opts );
-	inquiry_board_issue_session( $post_id );
-	// 알림 메일은 transition_post_status 훅이 담당한다 (아래 inquiry_board_notify_on_publish).
-
-	$redirect = ! empty( $_POST['inquiry_redirect'] )
-		? esc_url_raw( wp_unslash( $_POST['inquiry_redirect'] ) )
-		: get_permalink( $post_id );
-	wp_safe_redirect( $redirect );
-	exit;
+	// 알림 메일·CRM 전송은 transition_post_status 훅이 담당한다 (notify.php · wowbiz-sync).
+	return (int) $post_id;
 }
 
 /**
@@ -315,12 +332,15 @@ function inquiry_board_turnstile_sitekey(): string {
  *  - false : 설정돼 있으나 토큰 없음·검증 실패 → 제출 거부
  *  - true  : 통과
  */
-function inquiry_board_verify_turnstile(): ?bool {
+function inquiry_board_verify_turnstile( ?string $token = null ): ?bool {
 	$secret = trim( (string) get_option( 'cfturnstile_secret', '' ) );
 	if ( $secret === '' ) {
 		return null;
 	}
-	$token = isset( $_POST['cf-turnstile-response'] ) ? sanitize_text_field( wp_unslash( $_POST['cf-turnstile-response'] ) ) : '';
+	if ( null === $token ) {
+		$token = isset( $_POST['cf-turnstile-response'] ) ? wp_unslash( $_POST['cf-turnstile-response'] ) : '';
+	}
+	$token = sanitize_text_field( (string) $token );
 	if ( $token === '' ) {
 		return false;
 	}
